@@ -32,45 +32,75 @@ export function normalizeUserText(raw: unknown, maxLen = 2000): string {
     .slice(0, maxLen);
 }
 
-/** Aniqlash uchun "yalang'och" ko'rinish: kichik harf + homogliflar yechilgan. */
-function forDetection(s: string): string {
-  let out = "";
-  for (const ch of s) out += HOMOGLYPH[ch] ?? ch;
-  return out.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ");
+/**
+ * Aniqlash uchun ikki ko'rinish tayyorlanadi:
+ *  - `plain`  — faqat kichik harf (kirill matn BUZILMAYDI)
+ *  - `folded` — homogliflar lotinga yechilgan ("Ignоre" kirill "о" bilan → "ignore")
+ * Ikkalasida ham qidiramiz: aks holda homoglif-filtr rus so'zlarini buzib,
+ * ruscha qoidalar hech qachon ishlamay qolardi (jonli testda aynan shunday bo'ldi).
+ */
+function views(s: string): { plain: string; folded: string } {
+  const clean = (x: string) =>
+    x.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ");
+  let folded = "";
+  for (const ch of s) folded += HOMOGLYPH[ch] ?? ch;
+  return { plain: clean(s), folded: clean(folded) };
 }
 
-type Rule = { id: string; re: RegExp; weight: number };
+/**
+ * Qoida: `all` ichidagi BARCHA bo'laklar matnda uchrasa — hisoblanadi (TARTIB muhim emas).
+ * `\b` ISHLATILMAYDI: JS'da so'z chegarasi faqat ASCII bo'yicha ishlaydi, kirill va
+ * apostrofli o'zbek so'zlarida hech qachon mos kelmaydi (shu sabab ru/uz qoidalari ishlamay turgan edi).
+ */
+type Rule = { id: string; all: RegExp[]; weight: number };
 
-/** Hujum shakllari — uch tilda, chunki bola ham, tekshiruvchi ham har tilda yozadi. */
 const RULES: Rule[] = [
-  { id: "forget", weight: 3, re: /\b(ignore|disregard|forget)\b.{0,20}\b(previous|prior|above|all)\b.{0,20}\b(instruction|prompt|rule)/ },
-  { id: "forget_ru", weight: 3, re: /\b(забудь|игнорируй|не обращай внимания)\b.{0,30}\b(инструкц|правил|указан|предыдущ)/ },
-  { id: "forget_uz", weight: 3, re: /\b(unut|e tiborsiz qoldir|inkor qil)\b.{0,30}\b(ko rsatma|qoida|yuqorida)/ },
-  { id: "reveal", weight: 3, re: /\b(system prompt|systemprompt|initial instruction|your instructions|reveal.{0,15}prompt)\b/ },
-  { id: "reveal_ru", weight: 3, re: /\b(системн\w* промпт|покажи\w*.{0,20}(промпт|инструкц)|твои инструкции)\b/ },
-  { id: "reveal_uz", weight: 3, re: /\b(system promptni|ko rsatmalaringni)\b.{0,20}\b(yoz|ayt|ko rsat)\b/ },
-  { id: "roleplay", weight: 2, re: /\b(you are now|act as|pretend to be|from now on you)\b/ },
-  { id: "roleplay_ru", weight: 2, re: /\b(теперь ты|притворись|веди себя как|с этого момента ты)\b/ },
-  { id: "roleplay_uz", weight: 2, re: /\b(endi sen|o zingni.{0,15}deb hisobla|bundan keyin sen)\b/ },
-  { id: "dev_mode", weight: 3, re: /\b(developer mode|dan mode|jailbreak|do anything now|sudo mode)\b/ },
-  { id: "cheat", weight: 2, re: /\b(menga.{0,15}tanga ber|give me.{0,15}coins|дай мне.{0,15}монет|to g ri javoblarni.{0,10}ayt|correct answers?)\b/ },
-  { id: "fake_tag", weight: 2, re: /\b(end of|конец|tugadi)\b.{0,15}\b(data|input|savol|данн)/ },
-  { id: "role_marker", weight: 2, re: /\b(assistant|system|user)\s*:/ },
-  { id: "secret", weight: 3, re: /\b(api[_ ]?key|token|\.env|database url|parol|пароль|password)\b/ },
-  { id: "encoded", weight: 1, re: /\b(base64|rot13|decode this|dekodla|расшифруй)\b/ },
+  // "oldingi ko'rsatmalarni unut" — uch tilda, tartibsiz
+  { id: "forget_en", weight: 3, all: [/\b(ignore|disregard|forget)\b/, /(previous|prior|above|all)/, /(instruction|prompt|rule)/] },
+  { id: "forget_ru", weight: 3, all: [/(забудь|забыть|игнорируй|игнорир|не обращай внимания)/, /(инструкц|правил|указан|предыдущ|промпт)/] },
+  { id: "forget_uz", weight: 3, all: [/(unut|e tiborsiz|inkor qil)/, /(ko rsatma|qoida|yuqorida|instruksi)/] },
+
+  // system prompt'ni so'rash
+  { id: "reveal_en", weight: 3, all: [/(system\s*prompt|initial instruction|your instructions|show me your (prompt|rules))/] },
+  { id: "reveal_ru", weight: 3, all: [/(покажи|скажи|выведи|напиши|расскажи|дай)/, /(промпт|инструкц|правил|систем)/] },
+  { id: "reveal_uz", weight: 3, all: [/(system\s*prompt|ko rsatmalaring)/, /(yoz|ayt|ko rsat|ber)/] },
+
+  // rol almashtirish / jailbreak
+  { id: "roleplay_en", weight: 2, all: [/(you are now|act as|pretend to be|from now on you|roleplay as)/] },
+  { id: "roleplay_ru", weight: 2, all: [/(теперь ты|притворись|веди себя как|с этого момента ты|представь что ты)/] },
+  { id: "roleplay_uz", weight: 2, all: [/(endi sen|bundan keyin sen|deb hisobla)/] },
+  { id: "jailbreak", weight: 3, all: [/(developer mode|dan mode|jailbreak|do anything now|sudo mode|без правил|qoidasiz)/] },
+
+  // aldab foyda olish
+  { id: "cheat", weight: 3, all: [/(tanga ber|give me .{0,15}coins|дай .{0,15}монет|to g ri javob|correct answers|правильные ответы)/] },
+
+  // sirlar
+  { id: "secret", weight: 3, all: [/(api[_ ]?key|anthropic|\.env|database[_ ]?url|postgres|session[_ ]?secret|seed[_ ]?token)/] },
+  // "parol" darsda ham uchraydi (informatika) — o'zi bloklamaydi, faqat ball qo'shadi
+  { id: "secret_soft", weight: 1, all: [/(пароль|parol|password)/] },
+
+  // suhbat tuzilmasini taqlid qilish
+  { id: "role_marker", weight: 2, all: [/(^|\n)\s*(assistant|system|user|ассистент|система)\s*:/] },
+  { id: "fake_end", weight: 2, all: [/(end of|конец|tugadi|тут заканчива)/, /(data|input|savol|данн|ma lumot)/] },
+
+  // kodlangan yuk
+  { id: "encoded", weight: 2, all: [/(base64|rot13|decode|dekodla|расшифруй|декодируй)/] },
+  // kodlangan matnni "bajar" deyish — aniq hujum
+  { id: "encoded_exec", weight: 3, all: [/(base64|rot13|decode|dekodla|расшифруй)/, /(follow|execute|do it|bajar|выполни|следуй)/] },
 ];
 
 export type Detection = { score: number; hits: string[]; blocked: boolean };
 
-/** Ball 4 va undan yuqori — bu savol emas, hujum. Pastrog'i — shubhali, o'tkazamiz lekin yozib qo'yamiz. */
-export const BLOCK_SCORE = 4;
+/** Ball 3 va undan yuqori — bu savol emas, hujum. Pastrog'i — shubhali, o'tkazamiz lekin yozib qo'yamiz. */
+export const BLOCK_SCORE = 3;
 
 export function detectInjection(text: string): Detection {
-  const probe = forDetection(text);
+  const { plain, folded } = views(text);
   const hits: string[] = [];
   let score = 0;
   for (const r of RULES) {
-    if (r.re.test(probe)) {
+    const fires = r.all.every((re) => re.test(plain)) || r.all.every((re) => re.test(folded));
+    if (fires) {
       hits.push(r.id);
       score += r.weight;
     }
