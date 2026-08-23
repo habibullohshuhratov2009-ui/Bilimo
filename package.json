@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "start": "next start -p ${PORT:-3000}",
+    "lint": "eslint",
+    "db:migrate": "psql \"$DATABASE_URL\" -f src/lib/db/schema.sql"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

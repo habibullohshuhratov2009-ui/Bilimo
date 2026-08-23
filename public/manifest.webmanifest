@@ -1,0 +1,33 @@
+{
+  "name": "Sinf AI — AI repetitor",
+  "short_name": "Sinf AI",
+  "description": "O'zbek tilida qadam-baqadam tushuntiradigan AI repetitor: savol, tushuntirish, mini-test, tanga va duel.",
+  "id": "/",
+  "start_url": "/panel",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#4F46E5",
+  "lang": "uz",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
