@@ -14,10 +14,10 @@ export async function POST(req: Request) {
   // Taqdimotdan oldin sinov akkauntlarini tozalash (?cleanup=1).
   let removed = 0;
   if (new URL(req.url).searchParams.get("cleanup") === "1") {
+    // Taqdimotdan oldin: demo sinfda FAQAT seed o'quvchilari qolsin.
     const rows = await q<{ id: number }>(
       `SELECT id FROM users
        WHERE role = 'student'
-         AND (nickname ~* '^(test|hack|live|demo[0-9]|weak)' OR nickname !~ '^[A-Za-z0-9_]+$')
          AND nickname NOT IN ('Diyor','Malika','Javohir','Nilufar','Sardor')`);
     for (const r of rows) {
       await q(`DELETE FROM coin_ledger WHERE user_id = $1`, [r.id]);

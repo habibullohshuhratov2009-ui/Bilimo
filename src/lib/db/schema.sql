@@ -23,6 +23,32 @@ CREATE TABLE IF NOT EXISTS users (
   UNIQUE (nickname)
 );
 
+
+-- ============ MIGRATSIYA (23.08.2026): ism-familiya + email + Google + PIN tiklash ============
+-- Idempotent: jonli bazada necha marta ishlasa ham xavfsiz. nickname O'CHMAYDI (ichki ID bo'lib qoladi).
+ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name  TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email      TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub TEXT;
+-- Eski qatorlar: ism sifatida nickname ko'rsatiladi
+UPDATE users SET first_name = nickname WHERE first_name IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS users_email_uniq      ON users (LOWER(email)) WHERE email IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS users_google_sub_uniq ON users (google_sub)   WHERE google_sub IS NOT NULL;
+
+-- PIN tiklash kodlari (email orqali). Kod OCHIQ saqlanmaydi — faqat hash.
+CREATE TABLE IF NOT EXISTS password_resets (
+  id          BIGSERIAL PRIMARY KEY,
+  user_id     BIGINT NOT NULL REFERENCES users(id),
+  code_hash   TEXT NOT NULL,                 -- sha256(salt:kod)
+  salt        TEXT NOT NULL,
+  expires_at  TIMESTAMPTZ NOT NULL,          -- 15 daqiqa
+  used_at     TIMESTAMPTZ,
+  attempts    INT NOT NULL DEFAULT 0,        -- 5 xato = kod kuyadi
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS password_resets_user_idx ON password_resets(user_id, created_at DESC);
+-- ============================================================================================
+
 CREATE TABLE IF NOT EXISTS classes (
   id          BIGSERIAL PRIMARY KEY,
   school_id   BIGINT REFERENCES schools(id),
@@ -130,8 +156,32 @@ CREATE TABLE IF NOT EXISTS events (
 );
 CREATE INDEX IF NOT EXISTS events_type_idx ON events(type, created_at DESC);
 
+
+-- ============ MIGRATSIYA-2 (23.08.2026): KO'P SINF (class_members) ============
+-- O'quvchi bir nechta sinfda, o'qituvchi bir nechta sinf ochadi. users.class_id = AKTIV sinf.
+CREATE TABLE IF NOT EXISTS class_members (
+  id         BIGSERIAL PRIMARY KEY,
+  user_id    BIGINT NOT NULL REFERENCES users(id),
+  class_id   BIGINT NOT NULL REFERENCES classes(id),
+  role       TEXT NOT NULL CHECK (role IN ('student','teacher')),
+  joined_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, class_id)
+);
+CREATE INDEX IF NOT EXISTS class_members_class_idx ON class_members(class_id, role);
+-- Backfill (idempotent): mavjud users.class_id va classes.teacher_id a'zolikka ko'chadi
+INSERT INTO class_members (user_id, class_id, role)
+SELECT u.id, u.class_id, u.role FROM users u
+WHERE u.class_id IS NOT NULL AND u.is_deleted = false
+ON CONFLICT (user_id, class_id) DO NOTHING;
+INSERT INTO class_members (user_id, class_id, role)
+SELECT c.teacher_id, c.id, 'teacher' FROM classes c
+WHERE c.teacher_id IS NOT NULL
+ON CONFLICT (user_id, class_id) DO NOTHING;
+-- ==============================================================================
+
 CREATE OR REPLACE VIEW v_leaderboard AS
-SELECT u.id, u.nickname, u.class_id, COALESCE(SUM(c.delta),0)::INT AS coins, u.streak
+SELECT u.id, u.nickname, u.class_id, COALESCE(SUM(c.delta),0)::INT AS coins, u.streak,
+       COALESCE(NULLIF(TRIM(COALESCE(u.first_name,'') || ' ' || COALESCE(u.last_name,'')), ''), u.nickname) AS full_name
 FROM users u LEFT JOIN coin_ledger c ON c.user_id = u.id
 WHERE u.is_deleted = false AND u.role = 'student'
 GROUP BY u.id;

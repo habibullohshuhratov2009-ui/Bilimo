@@ -11,7 +11,7 @@ telefonda, bepul, o'zbek tilida.
 
 ## Ishga tushirish
 ```bash
-npm install
+npm install            # Node 22+ kerak (.nvmrc)
 cp .env.example .env.local        # ANTHROPIC_API_KEY va DATABASE_URL to'ldiriladi
 createdb sinfai
 psql -d sinfai -f src/lib/db/schema.sql
@@ -30,7 +30,7 @@ node scripts/shots.mjs           # barcha ekranlarning skrinshotlari (Playwright
 ```
 
 ## Texnologiya
-Next.js 15 (App Router) · TypeScript · Tailwind · **PostgreSQL** · Anthropic Claude API · PWA.
+Next.js 16.3.2 (App Router) · TypeScript · Tailwind · **PostgreSQL** · Anthropic Claude API · PWA.
 Deploy: Railway. Telefon va Windows uchun qobiqlar: `~/sinf-ai-wrap` (APK + NSIS installer).
 
 ## Hujjatlar

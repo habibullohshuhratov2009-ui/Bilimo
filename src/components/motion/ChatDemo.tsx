@@ -1,11 +1,44 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Mascot from "@/components/ui/Mascot";
 
 /**
- * Telefon maketi ichidagi "jonli" suhbat — xabarlar ketma-ket pop bo'lib chiqadi,
- * oxirida AI yozayapti-indikatori aylanib turadi, tanga aylanib tushadi.
- * Sof CSS animatsiya (animate-pop + d-kechikishlar), reduced-motion hurmat qilinadi.
+ * Telefon maketi ichidagi "jonli" suhbat — xabarlar ketma-ket chiqadi,
+ * tanga hisoblagichi sanab boradi (140 → +5 → 145), oxirida AI yozayapti.
+ * reduced-motion: hammasi statik yakuniy holatda.
  */
+function useCoinCounter() {
+  const [coins, setCoins] = useState(140);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setCoins(145);
+      return;
+    }
+    let raf = 0;
+    // "+5 tanga yutding!" xabari chiqqan payt (d8 ≈ 1.15s) hisob 140→145 sanaydi
+    const t0 = setTimeout(() => {
+      const start = performance.now();
+      const dur = 900;
+      const step = (ts: number) => {
+        const p = Math.min(1, (ts - start) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        setCoins(140 + Math.round(eased * 5));
+        if (p < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    }, 1400);
+    return () => {
+      clearTimeout(t0);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+  return coins;
+}
+
 export default function ChatDemo() {
+  const coins = useCoinCounter();
+
   return (
     <div className="rounded-[32px] border-[6px] border-slate-900 bg-white shadow-phone">
       {/* telefon tepa "notch" */}
@@ -17,20 +50,20 @@ export default function ChatDemo() {
         {/* app header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
-            <Mascot mood="happy" size={34} animated={false} />
+            <Mascot mood="happy" size={30} animated={false} />
             <span className="text-sm font-extrabold">Bilimo</span>
           </div>
-          <span className="flex items-center gap-1 rounded-full grad-coin px-2.5 py-1 text-xs font-extrabold text-coin-deep shadow-sm">
-            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" className="animate-coin-spin">
+          <span className="flex items-center gap-1 rounded-full grad-coin px-2.5 py-1 text-xs font-extrabold tabular-nums text-coin-deep shadow-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="11" fill="#fff7cc" stroke="#CA8A04" strokeWidth="2" />
             </svg>
-            145
+            {coins}
           </span>
         </div>
 
         <div className="space-y-3 pt-4 text-sm">
           {/* o'quvchi savoli */}
-          <div className="animate-pop d2 ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md grad-primary px-4 py-2.5 font-medium text-white shadow-toy">
+          <div className="animate-pop d2 ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md grad-primary px-4 py-2.5 font-medium text-white">
             Kasrlarni qanday qo&apos;shaman? 3/4 + 1/6 = ?
           </div>
 
@@ -49,9 +82,7 @@ export default function ChatDemo() {
             <p className="mt-1">3/4 + 1/6 nechaga teng?</p>
             <div className="mt-2 grid grid-cols-2 gap-1.5 text-center text-xs font-extrabold">
               <span className="rounded-lg bg-white px-2 py-1.5">4/10</span>
-              <span className="animate-pulse-soft rounded-lg bg-mint px-2 py-1.5 text-white">
-                11/12 ✓
-              </span>
+              <span className="rounded-lg bg-mint px-2 py-1.5 text-white">11/12 ✓</span>
             </div>
           </div>
 

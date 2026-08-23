@@ -41,17 +41,16 @@ body {
 /* ============ GRADIENTLAR / MATERIAL ============ */
 .grad-hero {
   background:
-    radial-gradient(1200px 500px at 85% -10%, #e0e7ff 0%, transparent 60%),
-    radial-gradient(900px 420px at -10% 40%, rgba(250, 204, 21, 0.14) 0%, transparent 60%),
-    linear-gradient(180deg, #eef2ff 0%, var(--background) 90%);
+    radial-gradient(1200px 500px at 85% -10%, rgba(224, 231, 255, 0.55) 0%, transparent 60%),
+    linear-gradient(180deg, #fafbff 0%, var(--background) 90%);
 }
 .grad-primary {
   background: linear-gradient(180deg, #6366f1 0%, #4f46e5 55%, #4338ca 100%);
 }
 .grad-panel {
   background:
-    radial-gradient(600px 300px at 90% 0%, rgba(250, 204, 21, 0.22) 0%, transparent 55%),
-    linear-gradient(135deg, #6366f1 0%, #4f46e5 45%, #3730a3 100%);
+    radial-gradient(600px 300px at 90% 0%, rgba(250, 204, 21, 0.1) 0%, transparent 55%),
+    linear-gradient(135deg, #5b54ee 0%, #4f46e5 45%, #3b34ab 100%);
 }
 .grad-coin {
   background: radial-gradient(circle at 35% 30%, #fde047 0%, #facc15 55%, #eab308 100%);
@@ -210,6 +209,116 @@ body {
   }
 }
 
+/* ============ 3D TUGMA TIZIMI (bitta til: balandlik/radius/push) ============ */
+.btn-3d {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: var(--radius-btn);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+  transition:
+    transform 0.14s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.14s cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 0.14s ease,
+    border-color 0.14s ease,
+    filter 0.14s ease;
+}
+.btn-3d:focus-visible {
+  outline: 3px solid var(--primary-glow);
+  outline-offset: 2px;
+}
+
+/* Asosiy: to'liq to'ldirilgan indigo, pastida qattiq "lab" */
+.btn-3d--primary {
+  color: #fff;
+  background: linear-gradient(180deg, #6366f1 0%, #4f46e5 58%, #4640d8 100%);
+  box-shadow:
+    0 4px 0 #3730a3,
+    0 12px 24px -10px var(--primary-glow);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-3d--primary:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+    box-shadow:
+      0 6px 0 #3730a3,
+      0 18px 32px -10px var(--primary-glow);
+  }
+}
+.btn-3d--primary:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #3730a3,
+    0 4px 10px -8px var(--primary-glow);
+}
+
+/* Ikkinchi: yumshoq oq, indigo hoshiya, xuddi shu push-mexanika */
+.btn-3d--soft {
+  color: var(--primary);
+  background: #fff;
+  border: 2px solid #dfe4ff;
+  box-shadow:
+    0 4px 0 #dbe1fd,
+    0 10px 20px -14px rgba(79, 70, 229, 0.4);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-3d--soft:hover {
+    transform: translateY(-2px);
+    border-color: #c7d2fe;
+    background: #fbfcff;
+    box-shadow:
+      0 6px 0 #dbe1fd,
+      0 16px 26px -14px rgba(79, 70, 229, 0.45);
+  }
+}
+.btn-3d--soft:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #dbe1fd,
+    0 4px 8px -8px rgba(79, 70, 229, 0.35);
+}
+
+/* Tanga: sariq, o'qituvchi CTA */
+.btn-3d--coin {
+  color: var(--coin-deep);
+  background: linear-gradient(180deg, #fde047 0%, #facc15 58%, #eab308 100%);
+  box-shadow:
+    0 4px 0 #a16207,
+    0 12px 24px -12px rgba(202, 138, 4, 0.5);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-3d--coin:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.04);
+    box-shadow:
+      0 6px 0 #a16207,
+      0 18px 30px -12px rgba(202, 138, 4, 0.55);
+  }
+}
+.btn-3d--coin:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #a16207,
+    0 4px 8px -8px rgba(202, 138, 4, 0.4);
+}
+
+/* ============ WOW: sarlavha harflari sakrab chiqadi ============ */
+@keyframes letter-pop {
+  0% { opacity: 0; transform: translateY(0.55em) scale(0.4) rotate(8deg); }
+  60% { opacity: 1; transform: translateY(-0.12em) scale(1.12) rotate(-3deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+.letter-pop {
+  display: inline-block;
+  animation: letter-pop 0.55s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
 /* ============ INTERAKTIV HOLATLAR ============ */
 .card-lift {
   transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.25s ease;
@@ -245,17 +354,20 @@ body {
   .m-jump,
   .m-spark,
   .m-think,
+  .letter-pop,
   .typing-dot {
     animation: none;
   }
   .animate-rise,
   .animate-pop,
-  .animate-coin-drop {
+  .animate-coin-drop,
+  .letter-pop {
     opacity: 1;
     transform: none;
   }
   .card-lift,
-  .btn-push {
+  .btn-push,
+  .btn-3d {
     transition: none;
   }
 }

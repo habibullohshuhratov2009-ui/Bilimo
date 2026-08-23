@@ -13,6 +13,6 @@ export async function balance(userId: number): Promise<number> {
 
 export async function leaderboard(classId: number | null, limit = 10) {
   if (!classId) return [];
-  return q(`SELECT nickname, coins, streak FROM v_leaderboard
-            WHERE class_id = $1 ORDER BY coins DESC, nickname ASC LIMIT $2`, [classId, limit]);
+  return q(`SELECT nickname, full_name AS name, coins, streak FROM v_leaderboard
+            WHERE class_id = $1 ORDER BY coins DESC, full_name ASC LIMIT $2`, [classId, limit]);
 }

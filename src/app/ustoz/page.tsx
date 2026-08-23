@@ -14,11 +14,14 @@ import Input from "@/components/ui/Input";
 import Spinner from "@/components/ui/Spinner";
 
 type Student = {
+  id: number;
   nickname: string;
+  name?: string;
   coins: number | string;
   streak: number | string;
   attempts: number | string;
   correct: number | string;
+  total?: number | string;
 };
 
 type ClassData = {
@@ -41,6 +44,30 @@ export default function UstozPage() {
   const [saved, setSaved] = useState(false);
   const [formError, setFormError] = useState("");
   const [codeCopied, setCodeCopied] = useState(false);
+  const [resetInfo, setResetInfo] = useState<{ student: string; pin: string } | null>(null);
+  const [resetBusy, setResetBusy] = useState<number | null>(null);
+  const [aiReport, setAiReport] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiError, setAiError] = useState("");
+
+  async function askAi() {
+    setAiBusy(true);
+    setAiError("");
+    try {
+      const res = await fetch("/api/teacher/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const j = await res.json();
+      if (!res.ok || !j.ok) throw new Error(j.error || "Xatolik");
+      setAiReport(String(j.report || ""));
+    } catch (e) {
+      setAiError(e instanceof Error ? e.message : "Xatolik");
+    } finally {
+      setAiBusy(false);
+    }
+  }
 
   async function copyClassCode(code: string) {
     await copyText(code);
@@ -97,6 +124,26 @@ export default function UstozPage() {
     }
   }
 
+  async function resetPin(st: Student) {
+    const label = st.name ?? st.nickname;
+    if (!confirm(`${label} uchun YANGI PIN yaratilsinmi? Eski PIN ishlamay qoladi.`)) return;
+    setResetBusy(st.id);
+    try {
+      const res = await fetch("/api/teacher/reset-pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: st.id }),
+      });
+      const d = await res.json();
+      if (d.ok) setResetInfo({ student: d.student, pin: d.pin });
+      else alert(d.error ?? "Tiklanmadi");
+    } catch {
+      alert("Server bilan aloqa uzildi");
+    } finally {
+      setResetBusy(null);
+    }
+  }
+
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
     router.replace("/kirish?role=teacher");
@@ -124,7 +171,8 @@ export default function UstozPage() {
   const students = data.students ?? [];
   const totalAttempts = students.reduce((s, x) => s + Number(x.attempts || 0), 0);
   const totalCorrect = students.reduce((s, x) => s + Number(x.correct || 0), 0);
-  const avgCorrect = students.length ? Math.round((totalCorrect / students.length) * 10) / 10 : 0;
+  const totalQuestions = students.reduce((s, x) => s + Number(x.total || 0), 0);
+  const accuracy = totalQuestions ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
 
   return (
     <main className="min-h-dvh bg-[#F8FAFC] text-[#0F172A] px-4 py-6">
@@ -162,21 +210,46 @@ export default function UstozPage() {
             [
               ["🧒", students.length, "o'quvchi"],
               ["📝", totalAttempts, "urinish"],
-              ["✅", avgCorrect, "o'rtacha to'g'ri"],
+              ["✅", accuracy, "to'g'ri javob, %"],
             ] as [string, number, string][]
           ).map(([emoji, num, label], i) => (
             <Card key={label} className="fx-rise text-center py-4 px-2" style={delay(120 + i * 60)}>
               <div className="text-xl">{emoji}</div>
-              <CountUp
-                value={num}
-                duration={1000}
-                decimals={Number.isInteger(num) ? 0 : 1}
-                className="block text-2xl font-extrabold"
-              />
+              <span className="flex items-baseline justify-center">
+                <CountUp
+                  value={num}
+                  duration={1000}
+                  decimals={0}
+                  className="text-2xl font-extrabold"
+                />
+                {label.endsWith("%") ? (
+                  <span className="text-2xl font-extrabold">%</span>
+                ) : null}
+              </span>
               <div className="text-[11px] font-semibold text-[#64748B]">{label}</div>
             </Card>
           ))}
         </div>
+
+        <Card className="fx-rise p-5" style={delay(200)}>
+          <h2 className="font-extrabold text-lg mb-1">🤖 AI hisobot</h2>
+          <p className="text-sm text-[#64748B] mb-3">
+            Sinf statistikasini AI o'qib beradi: kim orqada qolyapti, kim zo'r ketyapti, ertaga nima qilish kerak.
+          </p>
+          <Button onClick={askAi} disabled={aiBusy} className="w-full">
+            {aiBusy ? "AI o'qiyapti…" : "Sinf holatini tahlil qil"}
+          </Button>
+          {aiError && (
+            <div className="fx-shake mt-3 rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold">
+              {aiError}
+            </div>
+          )}
+          {aiReport && (
+            <div className="fx-rise mt-3 whitespace-pre-wrap rounded-2xl bg-[#F1F5F9] px-4 py-3 text-sm leading-relaxed text-[#0F172A]">
+              {aiReport}
+            </div>
+          )}
+        </Card>
 
         <Card className="fx-rise p-5" style={delay(240)}>
           <h2 className="font-extrabold text-lg mb-1">📚 Bugungi mavzu</h2>
@@ -218,6 +291,21 @@ export default function UstozPage() {
           </div>
         </Card>
 
+        {resetInfo && (
+          <Card className="fx-rise p-5 border-2 border-[#16A34A] bg-green-50">
+            <h2 className="font-extrabold text-lg mb-1">🔑 Yangi PIN tayyor</h2>
+            <p className="text-sm text-[#334155]">
+              <b>{resetInfo.student}</b> uchun yangi PIN (bir marta ko'rsatiladi — o'quvchiga ayting):
+            </p>
+            <div className="text-4xl font-extrabold tracking-[0.3em] text-center my-3 select-all">
+              {resetInfo.pin}
+            </div>
+            <Button variant="success" onClick={() => setResetInfo(null)} className="w-full">
+              Aytdim, yopish ✓
+            </Button>
+          </Card>
+        )}
+
         <Card className="fx-rise p-4" style={delay(300)}>
           <h2 className="font-extrabold text-lg mb-3 px-1">🧑‍🎓 O'quvchilar</h2>
           {students.length === 0 ? (
@@ -230,24 +318,25 @@ export default function UstozPage() {
                 <thead>
                   <tr className="text-left text-[11px] font-bold text-[#94A3B8] uppercase">
                     <th className="px-2 py-2">#</th>
-                    <th className="px-2 py-2">Nik</th>
+                    <th className="px-2 py-2">Ism familiya</th>
                     <th className="px-2 py-2 text-right">Tanga</th>
                     <th className="px-2 py-2 text-right">🔥</th>
                     <th className="px-2 py-2 text-right">Urinish</th>
                     <th className="px-2 py-2 text-right">To'g'ri</th>
+                    <th className="px-2 py-2 text-right">PIN</th>
                   </tr>
                 </thead>
                 <tbody>
                   {students.map((s, i) => (
                     <tr
-                      key={s.nickname}
+                      key={s.id}
                       className={`fx-rise ${i % 2 ? "bg-slate-50" : ""}`}
                       style={delay(360 + Math.min(i * 45, 540))}
                     >
                       <td className="px-2 py-2.5 font-bold text-[#94A3B8]">
                         {i < 3 ? <span className="fx-medal" style={delay(i * 260)}>{["🥇", "🥈", "🥉"][i]}</span> : i + 1}
                       </td>
-                      <td className="px-2 py-2.5 font-bold">{s.nickname}</td>
+                      <td className="px-2 py-2.5 font-bold">{s.name ?? s.nickname}</td>
                       <td className="px-2 py-2.5 text-right font-extrabold tabular-nums">
                         <span className="inline-flex items-center gap-1">
                           <Coin size={14} /> {Number(s.coins)}
@@ -257,6 +346,16 @@ export default function UstozPage() {
                       <td className="px-2 py-2.5 text-right tabular-nums">{Number(s.attempts)}</td>
                       <td className="px-2 py-2.5 text-right tabular-nums text-[#16A34A] font-bold">
                         {Number(s.correct)}
+                      </td>
+                      <td className="px-2 py-2.5 text-right">
+                        <button
+                          onClick={() => resetPin(s)}
+                          disabled={resetBusy === s.id}
+                          title="PIN esdan chiqqan bo'lsa — yangi PIN yaratish"
+                          className="text-xs font-bold text-[#4F46E5] border-2 border-[#4F46E5]/30 rounded-xl px-2 py-1 hover:bg-indigo-50 disabled:opacity-50"
+                        >
+                          {resetBusy === s.id ? "..." : "🔑 Tiklash"}
+                        </button>
                       </td>
                     </tr>
                   ))}

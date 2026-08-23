@@ -12,22 +12,81 @@ import { copyText } from "@/components/ui/CopyButton";
 
 type Me = {
   ok: boolean;
-  user: { id: number; nickname: string; role: string; class_id: number | null; grade: number | null };
+  user: { id: number; nickname: string; name?: string; role: string; class_id: number | null; grade: number | null };
   coins: number;
   class: { name: string; code: string } | null;
   topic: { id: number; title: string; subject: string | null } | null;
-  leaderboard: { nickname: string; coins: number | string; streak: number | string }[];
+  leaderboard: { nickname: string; name?: string; coins: number | string; streak: number | string }[];
 };
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
 const delay = (ms: number) => ({ "--fx-delay": `${ms}ms` }) as CSSProperties;
 
+const ONB_KEY = "bilimo_onb_v1";
+const ONB_STEPS = [
+  { icon: "💬", title: "Savolingni yoz", text: "Uy vazifangdagi savolni yoz — Bilimo javobni bermaydi, qadam-baqadam TUSHUNTIRADI." },
+  { icon: "🪙", title: "Mini-test ishla", text: "Har tushuntirishdan keyin kichik test chiqadi. To'g'ri javob = tanga." },
+  { icon: "⚔️", title: "Do'stingni chaqir", text: "Tangalar sinf reytingiga yoziladi. Sinfdoshingni duelga chaqir va kim zo'rligini ko'rsat." },
+];
+
+function Onboarding({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState(0);
+  const last = step === ONB_STEPS.length - 1;
+  const s = ONB_STEPS[step];
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 px-4 pb-6 sm:items-center sm:pb-0">
+      <div className="fx-rise w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl">
+        <div className="text-4xl">{s.icon}</div>
+        <h2 className="mt-3 text-xl font-extrabold">{s.title}</h2>
+        <p className="mt-2 text-sm leading-relaxed text-[#64748B]">{s.text}</p>
+        <div className="mt-5 flex items-center justify-center gap-1.5">
+          {ONB_STEPS.map((_, i) => (
+            <span
+              key={i}
+              className={`h-2 rounded-full transition-all ${i === step ? "w-6 bg-[#4F46E5]" : "w-2 bg-[#CBD5E1]"}`}
+            />
+          ))}
+        </div>
+        <button
+          onClick={() => (last ? onClose() : setStep(step + 1))}
+          className="mt-5 h-12 w-full rounded-2xl bg-[#4F46E5] text-base font-extrabold text-white transition-transform active:scale-[0.98]"
+        >
+          {last ? "Boshladik! 🚀" : "Keyingisi"}
+        </button>
+        {!last && (
+          <button onClick={onClose} className="mt-2 h-11 w-full text-sm font-semibold text-[#94A3B8]">
+            O'tkazib yuborish
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function PanelPage() {
   const router = useRouter();
   const [me, setMe] = useState<Me | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [showOnb, setShowOnb] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(ONB_KEY)) setShowOnb(true);
+    } catch {
+      /* localStorage yopiq bo'lsa — onboarding shunchaki ko'rsatilmaydi */
+    }
+  }, []);
+
+  function closeOnb() {
+    setShowOnb(false);
+    try {
+      localStorage.setItem(ONB_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+  }
 
   useEffect(() => {
     fetch("/api/me")
@@ -84,10 +143,11 @@ export default function PanelPage() {
 
   return (
     <main className="min-h-dvh bg-[#F8FAFC] text-[#0F172A] px-4 py-6">
+      {showOnb && <Onboarding onClose={closeOnb} />}
       <div className="max-w-md mx-auto flex flex-col gap-4">
         <header className="fx-rise flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-extrabold">Salom, {me.user.nickname}! 👋</h1>
+            <h1 className="text-2xl font-extrabold">Salom, {me.user.name ?? me.user.nickname}! 👋</h1>
             {me.class && (
               <p className="text-sm text-[#64748B] mt-0.5">
                 {me.class.name} · kod: <span className="font-mono font-bold">{me.class.code}</span>
@@ -176,7 +236,7 @@ export default function PanelPage() {
                       )}
                     </span>
                     <span className="flex-1 font-bold truncate">
-                      {row.nickname}
+                      {row.name ?? row.nickname}
                       {isMe && <span className="text-[#4F46E5] text-xs font-extrabold ml-1">(sen)</span>}
                     </span>
                     <span className="flex items-center gap-1 font-extrabold tabular-nums">

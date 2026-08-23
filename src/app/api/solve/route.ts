@@ -28,12 +28,18 @@ export async function POST(req: Request) {
   // Ikkalasi PARALLEL ketadi: test tuzish uchun tushuntirish shart emas, savolning o'zi yetadi.
   const question = String(text).slice(0, 2000);
   const [explain, quizRes] = await Promise.allSettled([
-    ask(EXPLAIN_SYSTEM, wrapUserInput(question)),
+    ask(EXPLAIN_SYSTEM, wrapUserInput(question), 520),
     ask(QUIZ_SYSTEM, wrapUserInput(question), 700, QUIZ_MODEL),
   ]);
   if (explain.status === "rejected")
     return NextResponse.json({ ok: false, error: "AI hozir javob bera olmadi, qayta urining" }, { status: 502 });
   const ex = explain.value;
+  // Model ba'zan bo'sh javob qaytaradi (masalan tushunarsiz/base64 matnda) —
+  // o'quvchi bo'sh kartani emas, tushunarli xabarni ko'rsin.
+  if (!ex.text || ex.text.trim().length < 10)
+    return NextResponse.json(
+      { ok: false, error: "Savolni tushunmadim. Iltimos, oddiy so'zlar bilan qayta yozib ko'r." },
+      { status: 422 });
   const row = await one<{ id: number }>(
     `INSERT INTO explanations (user_id, input_text, output_md, model, input_tokens, out_tokens)
      VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,

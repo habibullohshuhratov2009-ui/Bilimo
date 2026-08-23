@@ -41,3 +41,13 @@ yarn-error.log*
 next-env.d.ts
 .env.local
 .env
+
+# hakaton test artefaktlari
+*.jar
+/a_*.json
+/atk_*.json
+/t_*.json
+/rp.json
+/sub.json
+/duel.json
+*_code.txt

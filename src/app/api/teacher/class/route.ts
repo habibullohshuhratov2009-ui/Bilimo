@@ -9,9 +9,10 @@ export async function GET() {
   const cls = await one<any>(`SELECT id, name, code FROM classes WHERE teacher_id = $1`, [user.id]);
   if (!cls) return NextResponse.json({ ok: false, error: "Sinf yo'q" }, { status: 404 });
   const students = await q(
-    `SELECT v.nickname, v.coins, v.streak,
+    `SELECT v.id, v.nickname, v.full_name AS name, v.coins, v.streak,
             (SELECT COUNT(*) FROM attempts a WHERE a.user_id = v.id) AS attempts,
-            (SELECT COALESCE(SUM(a.correct),0) FROM attempts a WHERE a.user_id = v.id) AS correct
+            (SELECT COALESCE(SUM(a.correct),0) FROM attempts a WHERE a.user_id = v.id) AS correct,
+            (SELECT COALESCE(SUM(a.total),0) FROM attempts a WHERE a.user_id = v.id) AS total
      FROM v_leaderboard v WHERE v.class_id = $1 ORDER BY v.coins DESC`, [cls.id]);
   const topic = await one<any>(
     `SELECT title, subject FROM topics WHERE class_id = $1 AND is_active = true ORDER BY created_at DESC LIMIT 1`, [cls.id]);

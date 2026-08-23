@@ -8,6 +8,7 @@ const COOKIE = "sinf_session";
 export type SessionUser = {
   id: number; nickname: string; role: "student" | "teacher";
   class_id: number | null; grade: number | null;
+  first_name: string | null; last_name: string | null; email: string | null;
 };
 
 export { hashPinScrypt as hashPin, verifyPin, needsRehash } from "@/lib/security/pin";
@@ -49,5 +50,6 @@ export async function currentUser(): Promise<SessionUser | null> {
   const id = verify(token);
   if (!id) return null;
   return await one<SessionUser>(
-    `SELECT id, nickname, role, class_id, grade FROM users WHERE id = $1 AND is_deleted = false`, [id]);
+    `SELECT id, nickname, role, class_id, grade, first_name, last_name, email
+     FROM users WHERE id = $1 AND is_deleted = false`, [id]);
 }

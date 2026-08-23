@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth/session";
+import { fullName } from "@/lib/auth/names";
 import { balance, leaderboard } from "@/lib/db/queries/coins";
 import { one } from "@/lib/db/pool";
 export const dynamic = "force-dynamic";
@@ -16,7 +17,9 @@ export async function GET() {
         [user.class_id])
     : null;
   return NextResponse.json({
-    ok: true, user, coins: await balance(user.id),
+    ok: true,
+    user: { ...user, name: fullName(user.first_name, user.last_name, user.nickname) },
+    coins: await balance(user.id),
     class: cls, topic, leaderboard: await leaderboard(user.class_id),
   });
 }

@@ -1,5 +1,5 @@
 {
-  "name": "sinf-ai",
+  "name": "bilimo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -30,6 +30,6 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=22.0.0"
   }
 }

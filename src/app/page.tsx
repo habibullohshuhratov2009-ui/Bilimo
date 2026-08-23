@@ -25,6 +25,122 @@ function CoinIcon({ size = 22 }: { size?: number }) {
   );
 }
 
+function PlayIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="-ml-1 shrink-0">
+      <path d="M8 5.14v13.72c0 .93 1.02 1.5 1.8.99l10.3-6.86a1.19 1.19 0 0 0 0-1.98L9.8 4.15C9.02 3.64 8 4.2 8 5.14z" />
+    </svg>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="-ml-1 shrink-0"
+    >
+      <path d="M12 4v10m0 0l-4.2-4.2M12 14l4.2-4.2" />
+      <path d="M4.5 16.5v1.8A2.7 2.7 0 0 0 7.2 21h9.6a2.7 2.7 0 0 0 2.7-2.7v-1.8" />
+    </svg>
+  );
+}
+
+function CheckIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="-ml-1 shrink-0"
+    >
+      <path d="M4.5 12.5l5 5L19.5 7" />
+    </svg>
+  );
+}
+
+function ArrowRightIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="-mr-1 shrink-0"
+    >
+      <path d="M4.5 12h15m0 0l-5.6-5.6M19.5 12l-5.6 5.6" />
+    </svg>
+  );
+}
+
+function SparkIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2.5l2.1 5.6 5.6 2.1-5.6 2.1L12 17.9l-2.1-5.6-5.6-2.1 5.6-2.1L12 2.5z" />
+      <circle cx="19" cy="19" r="2.2" opacity="0.55" />
+    </svg>
+  );
+}
+
+function BoltIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M13.2 2.2L4.8 13.4h5.1L10.8 22l8.4-11.6h-5.1l-0.9-8.2z" />
+    </svg>
+  );
+}
+
+function ChartIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <rect x="4" y="12.5" width="4.2" height="7.5" rx="1.2" />
+      <rect x="9.9" y="7" width="4.2" height="13" rx="1.2" />
+      <rect x="15.8" y="10" width="4.2" height="10" rx="1.2" />
+    </svg>
+  );
+}
+
+const FEATURES = [
+  {
+    icon: <SparkIcon />,
+    title: "AI yechim",
+    text: "Qadam-baqadam tushuntirish",
+  },
+  {
+    icon: <BoltIcon />,
+    title: "1x1 duel",
+    text: "Sinfdosh bilan bellashuv",
+  },
+  {
+    icon: <CoinIcon size={20} />,
+    title: "Tanga + reyting",
+    text: "Har to'g'ri javob +5",
+  },
+  {
+    icon: <ChartIcon />,
+    title: "O'qituvchi paneli",
+    text: "Sinf progressi jonli",
+  },
+];
+
 export default function Home() {
   const [installEvent, setInstallEvent] =
     useState<BeforeInstallPromptEvent | null>(null);
@@ -56,28 +172,35 @@ export default function Home() {
     }
   };
 
+  const installLabel = installed ? (
+    <>
+      <CheckIcon /> O&apos;rnatildi
+    </>
+  ) : (
+    <>
+      <DownloadIcon /> O&apos;rnatish
+    </>
+  );
+
   return (
     <div className="flex flex-1 flex-col bg-background text-foreground">
       {/* ===== HEADER ===== */}
       <header className="sticky top-0 z-20 border-b border-indigo-100/70 bg-white/85 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-2.5">
           <div className="flex items-center gap-2">
-            <Mascot mood="happy" size={38} animated={false} />
+            <Mascot mood="happy" size={32} animated={false} />
             <span className="text-lg font-extrabold tracking-tight">
-              Sinf <span className="text-primary">AI</span>
+              Bilim<span className="text-primary">o</span>
             </span>
           </div>
           <nav className="flex items-center gap-3">
             <Link
               href="/yordam"
-              className="text-sm font-semibold text-muted transition-colors hover:text-primary"
+              className="inline-flex h-11 min-w-[44px] items-center justify-center rounded-xl px-3 text-sm font-semibold text-muted transition-colors hover:bg-primary-soft hover:text-primary"
             >
               Yordam
             </Link>
-            <Link
-              href="/kirish"
-              className="btn-push rounded-btn grad-primary px-4 py-2 text-sm font-bold text-white shadow-[0_3px_0_#3730A3]"
-            >
+            <Link href="/kirish" className="btn-3d btn-3d--primary h-11 px-5 text-sm">
               Kirish
             </Link>
           </nav>
@@ -87,15 +210,15 @@ export default function Home() {
       <main className="flex-1">
         {/* ===== HERO ===== */}
         <section className="grad-hero relative overflow-hidden">
-          <FloatingCoins />
-          <div className="relative mx-auto grid max-w-5xl gap-12 px-4 pb-16 pt-10 md:grid-cols-2 md:items-center md:pt-14">
+          <FloatingCoins className="opacity-40" />
+          <div className="relative mx-auto grid max-w-5xl gap-12 px-4 pb-16 pt-10 md:grid-cols-2 md:items-center md:pt-16">
             <div>
               <span className="animate-pop d1 inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-white px-3 py-1 text-xs font-bold text-primary shadow-sm">
-                🇺🇿 O&apos;zbek tilidagi AI repetitor
+                O&apos;zbek tilidagi AI repetitor
               </span>
-              <h1 className="animate-rise d2 mt-4 text-[2.6rem] font-extrabold leading-[1.08] tracking-tight md:text-6xl">
+              <h1 className="animate-rise d2 mt-5 text-[2.6rem] font-extrabold leading-[1.06] tracking-tight md:text-6xl">
                 O&apos;qish endi{" "}
-                <span className="bg-gradient-to-r from-primary via-violet-500 to-primary bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-violet-500 to-primary bg-clip-text text-transparent">
                   o&apos;yin!
                 </span>
               </h1>
@@ -106,35 +229,48 @@ export default function Home() {
               </p>
 
               <div className="animate-rise d4 mt-7 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/kirish"
-                  className="btn-push flex h-14 items-center justify-center rounded-btn grad-primary px-8 text-base font-extrabold text-white shadow-[0_5px_0_#3730A3,0_14px_30px_-8px_var(--primary-glow)]"
-                >
-                  🚀 Boshlash
+                <Link href="/kirish" className="btn-3d btn-3d--primary h-14 px-8 text-base">
+                  <PlayIcon /> Boshlash
                 </Link>
                 <button
                   type="button"
                   onClick={handleInstall}
-                  className="btn-push flex h-14 items-center justify-center rounded-btn border-2 border-primary bg-white px-8 text-base font-extrabold text-primary shadow-[0_5px_0_#c7d2fe] hover:bg-primary-soft"
+                  className="btn-3d btn-3d--soft h-14 px-8 text-base"
                 >
-                  {installed ? "✅ O'rnatildi" : "📲 O'rnatish"}
+                  {installLabel}
                 </button>
               </div>
 
               {showIosHint && !installEvent && !installed && (
                 <p className="animate-pop mt-3 rounded-card bg-white px-4 py-3 text-sm font-medium text-primary shadow-sm">
-                  📱 iPhone&apos;da: <b>Ulashish</b> →{" "}
+                  iPhone&apos;da: <b>Ulashish</b> →{" "}
                   <b>&laquo;Bosh ekranga qo&apos;shish&raquo;</b>.
                   Android Chrome&apos;da menyudan{" "}
                   <b>&laquo;Ilovani o&apos;rnatish&raquo;</b>.
                 </p>
               )}
+
+              {/* Imkoniyatlar darrov ko'rinsin */}
+              <div className="animate-rise d5 mt-8 grid grid-cols-2 gap-3 md:mt-10">
+                {FEATURES.map((f) => (
+                  <div
+                    key={f.title}
+                    className="rounded-xl border border-indigo-100/80 bg-white p-3.5 shadow-sm"
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                      {f.icon}
+                    </span>
+                    <p className="mt-2.5 text-sm font-extrabold">{f.title}</p>
+                    <p className="mt-0.5 text-xs leading-snug text-muted">{f.text}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Telefon maketi + orqasidan mo'ralayotgan maskot */}
-            <div className="animate-rise d5 relative mx-auto w-full max-w-sm">
-              <div className="absolute -top-12 right-4 z-0">
-                <Mascot mood="happy" size={96} />
+            {/* Telefon maketi — jonli mahsulot demo */}
+            <div className="animate-rise d5 relative mx-auto mt-2 w-full max-w-[330px] md:mt-0 md:max-w-sm">
+              <div className="absolute -top-11 right-6 z-0 hidden md:block">
+                <Mascot mood="happy" size={82} />
               </div>
               <div className="relative z-10">
                 <ChatDemo />
@@ -144,9 +280,9 @@ export default function Home() {
         </section>
 
         {/* ===== 3 QADAM ===== */}
-        <section className="mx-auto max-w-5xl px-4 py-14">
+        <section className="mx-auto max-w-5xl px-4 py-16 md:py-20">
           <div className="text-center">
-            <h2 className="text-2xl font-extrabold md:text-4xl">
+            <h2 className="text-[1.7rem] font-extrabold tracking-tight md:text-4xl">
               3 qadamda chempion bo&apos;l
             </h2>
             <p className="mx-auto mt-2 max-w-md text-muted">
@@ -160,33 +296,26 @@ export default function Home() {
                 n: "1",
                 title: "Savolingni yoz",
                 text: "Masala yoki tushunmagan mavzuni oddiy so'z bilan yozasan.",
-                mood: "think" as const,
-                bg: "bg-white",
               },
               {
                 n: "2",
                 title: "AI tushuntiradi",
                 text: "Zumi o'zbek tilida qadam-baqadam yechib, mantiqni ko'rsatadi.",
-                mood: "happy" as const,
-                bg: "bg-primary-soft",
               },
               {
                 n: "3",
                 title: "Test yech, tanga yut",
                 text: "Mini-testda to'g'ri javob +5 tanga. Tangalar reytingga qo'shiladi!",
-                mood: "win" as const,
-                bg: "bg-[#fefce8]",
               },
             ].map((s) => (
               <div
                 key={s.n}
-                className={`card-lift relative rounded-card border border-indigo-100/60 ${s.bg} p-6 pt-8 shadow-toy`}
+                className="card-lift rounded-card border border-indigo-100/70 bg-white p-6 shadow-toy"
               >
-                <span className="absolute -top-4 left-6 flex h-9 w-9 items-center justify-center rounded-full grad-coin text-base font-extrabold text-coin-deep shadow-md">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-lg font-extrabold text-white">
                   {s.n}
                 </span>
-                <Mascot mood={s.mood} size={72} />
-                <h3 className="mt-3 text-lg font-extrabold">{s.title}</h3>
+                <h3 className="mt-4 text-lg font-extrabold">{s.title}</h3>
                 <p className="mt-2 leading-relaxed text-muted">{s.text}</p>
               </div>
             ))}
@@ -194,22 +323,19 @@ export default function Home() {
         </section>
 
         {/* ===== TANGA + DUEL ===== */}
-        <section className="relative overflow-hidden bg-white py-14">
-          <FloatingCoins className="opacity-60" />
-          <div className="relative mx-auto max-w-5xl px-4">
-            <h2 className="text-center text-2xl font-extrabold md:text-4xl">
+        <section className="bg-white py-16 md:py-20">
+          <div className="mx-auto max-w-5xl px-4">
+            <h2 className="text-center text-[1.7rem] font-extrabold tracking-tight md:text-4xl">
               Bilim = tanga. Tanga = g&apos;alaba.
             </h2>
             <div className="mt-10 grid gap-5 md:grid-cols-2">
               {/* Tanga iqtisodiyoti */}
-              <div className="card-lift rounded-card border border-yellow-200/70 bg-gradient-to-b from-[#fefce8] to-white p-7 shadow-toy">
+              <div className="card-lift rounded-card border border-indigo-100/70 bg-white p-7 shadow-toy">
                 <div className="flex items-center gap-3">
-                  <span className="animate-coin inline-block">
-                    <CoinIcon size={44} />
-                  </span>
+                  <CoinIcon size={36} />
                   <h3 className="text-xl font-extrabold">Tangalar qanday yig&apos;iladi?</h3>
                 </div>
-                <ul className="mt-5 space-y-3 font-semibold">
+                <ul className="mt-5 space-y-2.5 font-semibold">
                   {[
                     { t: "To'g'ri javob", c: "+5" },
                     { t: "Kunlik kirish", c: "+10" },
@@ -217,11 +343,11 @@ export default function Home() {
                   ].map((r) => (
                     <li
                       key={r.t}
-                      className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm"
+                      className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3"
                     >
                       <span>{r.t}</span>
-                      <span className="flex items-center gap-1.5 font-extrabold text-coin-dark">
-                        {r.c} <CoinIcon size={18} />
+                      <span className="flex items-center gap-1.5 font-extrabold tabular-nums text-coin-dark">
+                        {r.c} <CoinIcon size={16} />
                       </span>
                     </li>
                   ))}
@@ -239,22 +365,24 @@ export default function Home() {
                   Sinfdoshingni chorla: bir xil 5 savol, kim tez va to&apos;g&apos;ri
                   yechsa, g&apos;alaba uniki!
                 </p>
-                <div className="mt-6 flex items-center justify-center gap-4">
-                  <div className="flex flex-col items-center rounded-card bg-white/12 px-5 py-4 backdrop-blur">
-                    <Mascot mood="win" size={76} />
-                    <span className="mt-1 text-sm font-extrabold">Aziza</span>
-                    <span className="text-xs text-white/75">5/5 ✓</span>
+                <div className="mt-7 flex items-center justify-center gap-5">
+                  <div className="flex w-28 flex-col items-center rounded-card bg-white/10 px-4 py-5">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-lg font-extrabold">
+                      A
+                    </span>
+                    <span className="mt-2 text-sm font-extrabold">Aziza</span>
+                    <span className="mt-0.5 text-xs tabular-nums text-white/75">5/5</span>
                   </div>
-                  <span className="animate-pulse-soft text-3xl font-extrabold text-coin">
-                    VS
-                  </span>
-                  <div className="flex flex-col items-center rounded-card bg-white/12 px-5 py-4 backdrop-blur">
-                    <Mascot mood="think" size={76} />
-                    <span className="mt-1 text-sm font-extrabold">Jasur</span>
-                    <span className="text-xs text-white/75">4/5</span>
+                  <span className="text-2xl font-extrabold text-coin">VS</span>
+                  <div className="flex w-28 flex-col items-center rounded-card bg-white/10 px-4 py-5">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-lg font-extrabold">
+                      J
+                    </span>
+                    <span className="mt-2 text-sm font-extrabold">Jasur</span>
+                    <span className="mt-0.5 text-xs tabular-nums text-white/75">4/5</span>
                   </div>
                 </div>
-                <p className="mt-5 flex items-center justify-center gap-1.5 text-sm font-extrabold text-coin">
+                <p className="mt-6 flex items-center justify-center gap-1.5 text-sm font-extrabold text-coin">
                   G&apos;olibga +25 <CoinIcon size={16} />
                 </p>
               </div>
@@ -263,63 +391,66 @@ export default function Home() {
         </section>
 
         {/* ===== O'QITUVCHI UCHUN ===== */}
-        <section className="mx-auto max-w-5xl px-4 py-14">
+        <section className="mx-auto max-w-5xl px-4 py-16 md:py-20">
           <div className="overflow-hidden rounded-card grad-panel px-6 py-10 text-white shadow-toy md:px-12">
             <div className="grid gap-8 md:grid-cols-2 md:items-center">
               <div>
                 <span className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-bold">
-                  👩‍🏫 O&apos;qituvchilar uchun
+                  O&apos;qituvchilar uchun
                 </span>
-                <h2 className="mt-3 text-2xl font-extrabold md:text-3xl">
+                <h2 className="mt-3 text-2xl font-extrabold tracking-tight md:text-3xl">
                   Sinfingizni 2 daqiqada ulang
                 </h2>
-                <ul className="mt-4 space-y-3 text-white/90">
-                  <li className="flex gap-2.5">
-                    <span>🔑</span>
-                    <span>
+                <ul className="mt-5 space-y-3 text-white/90">
+                  {[
+                    <span key="1">
                       <b>Sinf kodi</b> yarating: o&apos;quvchilar shu kod bilan
                       qo&apos;shiladi, hujjat kerak emas.
-                    </span>
-                  </li>
-                  <li className="flex gap-2.5">
-                    <span>📚</span>
-                    <span>
+                    </span>,
+                    <span key="2">
                       <b>Kunlik mavzu</b> qo&apos;ying: AI aynan shu mavzu
                       bo&apos;yicha tushuntiradi va test tuzadi.
-                    </span>
-                  </li>
-                  <li className="flex gap-2.5">
-                    <span>📊</span>
-                    <span>
+                    </span>,
+                    <span key="3">
                       <b>Progress paneli</b>: kim nechta savol yechdi, kimga
                       yordam kerak, hammasi bitta jadvalda.
-                    </span>
-                  </li>
+                    </span>,
+                  ].map((content, i) => (
+                    <li key={i} className="flex items-start gap-2.5">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20">
+                        <CheckIcon size={12} />
+                      </span>
+                      {content}
+                    </li>
+                  ))}
                 </ul>
                 <Link
                   href="/kirish?role=teacher"
-                  className="btn-push mt-6 inline-flex items-center justify-center rounded-btn grad-coin px-8 py-3.5 text-base font-extrabold text-coin-deep shadow-[0_4px_0_#A16207]"
+                  className="btn-3d btn-3d--coin mt-7 h-12 px-7 text-base"
                 >
-                  O&apos;qituvchi sifatida boshlash →
+                  O&apos;qituvchi sifatida boshlash <ArrowRightIcon />
                 </Link>
               </div>
-              <div className="rounded-card bg-white/10 p-5 backdrop-blur">
+              <div className="rounded-card bg-white/10 p-5">
                 <p className="text-sm font-bold text-white/70">5-A sinf · Matematika</p>
                 <div className="mt-3 space-y-2 text-sm">
                   {[
-                    { name: "Aziza", coins: 230, ok: "18/20", medal: "🥇" },
-                    { name: "Jasur", coins: 195, ok: "15/19", medal: "🥈" },
-                    { name: "Malika", coins: 160, ok: "12/16", medal: "🥉" },
+                    { name: "Aziza", coins: 230, ok: "18/20" },
+                    { name: "Jasur", coins: 195, ok: "15/19" },
+                    { name: "Malika", coins: 160, ok: "12/16" },
                   ].map((r, i) => (
                     <div
                       key={r.name}
                       className={`animate-pop flex items-center justify-between rounded-xl bg-white/10 px-4 py-2.5 ${["d3", "d5", "d7"][i]}`}
                     >
-                      <span className="font-bold">
-                        {r.medal} {r.name}
+                      <span className="flex items-center gap-2.5 font-bold">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-xs tabular-nums">
+                          {i + 1}
+                        </span>
+                        {r.name}
                       </span>
-                      <span className="flex items-center gap-1 text-white/85">
-                        ✅ {r.ok} · {r.coins} <CoinIcon size={14} />
+                      <span className="flex items-center gap-1.5 tabular-nums text-white/85">
+                        {r.ok} · {r.coins} <CoinIcon size={14} />
                       </span>
                     </div>
                   ))}
@@ -332,35 +463,66 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===== YAKUNIY CTA ===== */}
-        <section className="relative mx-auto max-w-3xl overflow-hidden px-4 pb-20 pt-6 text-center">
-          <FloatingCoins className="opacity-70" />
-          <div className="relative">
-            <div className="mx-auto w-fit">
-              <Mascot mood="win" size={130} />
-            </div>
-            <h2 className="mt-4 text-2xl font-extrabold md:text-4xl">
-              Bugun birinchi tangangni yut!
+        {/* ===== YUKLAB OLISH ===== */}
+        <section id="yuklab-olish" className="mx-auto max-w-3xl px-4 pb-4">
+          <div className="rounded-card border border-indigo-100 bg-white p-6 text-center shadow-sm">
+            <h2 className="text-xl font-extrabold tracking-tight md:text-2xl">
+              Ilovani qurilmangizga o&apos;rnating
             </h2>
-            <p className="mx-auto mt-2 max-w-md text-muted">
-              Zumi seni kutyapti. Savol ber, tushunib ol, tanga yig&apos;,
-              chempion bo&apos;l!
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted">
+              Brauzersiz ham ishlaydi: telefonga <b>APK</b>, kompyuterga{" "}
+              <b>Windows o&apos;rnatgich</b>.
             </p>
-            <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link
-                href="/kirish"
-                className="btn-push flex h-14 items-center justify-center rounded-btn grad-primary px-10 text-base font-extrabold text-white shadow-[0_5px_0_#3730A3,0_14px_30px_-8px_var(--primary-glow)]"
+            <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
+              <a
+                href="/Bilimo.apk"
+                download
+                className="btn-3d btn-3d--primary h-12 px-6 text-sm"
               >
-                🚀 Boshlash
-              </Link>
+                <DownloadIcon /> Android (APK)
+              </a>
+              <a
+                href="https://github.com/habibullohshuhratov2009-ui/Bilimo/releases/latest"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-3d btn-3d--soft h-12 px-6 text-sm"
+              >
+                <DownloadIcon /> Windows (.exe)
+              </a>
               <button
                 type="button"
                 onClick={handleInstall}
-                className="btn-push flex h-14 items-center justify-center rounded-btn border-2 border-primary bg-white px-10 text-base font-extrabold text-primary shadow-[0_5px_0_#c7d2fe] hover:bg-primary-soft"
+                className="btn-3d btn-3d--soft h-12 px-6 text-sm"
               >
-                {installed ? "✅ O'rnatildi" : "📲 O'rnatish"}
+                {installLabel}
               </button>
             </div>
+            <p className="mt-3 text-xs text-muted">
+              APK&apos;ni o&apos;rnatishda Android &laquo;noma&apos;lum manba&raquo; ruxsatini so&apos;raydi — bu normal holat.
+            </p>
+          </div>
+        </section>
+
+        {/* ===== YAKUNIY CTA ===== */}
+        <section className="mx-auto max-w-3xl px-4 pb-24 pt-6 text-center">
+          <h2 className="text-[1.7rem] font-extrabold tracking-tight md:text-4xl">
+            Bugun birinchi tangangni yut!
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-muted">
+            Savol ber, tushunib ol, tanga yig&apos;, chempion bo&apos;l. Hammasi
+            bepul boshlanadi.
+          </p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href="/kirish" className="btn-3d btn-3d--primary h-14 px-10 text-base">
+              <PlayIcon /> Boshlash
+            </Link>
+            <button
+              type="button"
+              onClick={handleInstall}
+              className="btn-3d btn-3d--soft h-14 px-10 text-base"
+            >
+              {installLabel}
+            </button>
           </div>
         </section>
       </main>
@@ -369,7 +531,7 @@ export default function Home() {
       <footer className="border-t border-indigo-100 bg-white">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 py-8 text-center text-sm text-muted sm:flex-row sm:justify-between sm:text-left">
           <div className="flex items-center gap-2">
-            <Mascot mood="happy" size={28} animated={false} />
+            <Mascot mood="happy" size={24} animated={false} />
             <span className="font-bold text-foreground">Bilimo</span>
             <span>· AI bilan o&apos;qish o&apos;yinga aylanadi</span>
           </div>

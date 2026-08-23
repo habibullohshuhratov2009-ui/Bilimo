@@ -43,7 +43,7 @@ export default function YordamPage() {
           <Link href="/" className="flex items-center gap-2 font-extrabold">
             <span className="text-xl">🪙</span>
             <span>
-              Sinf <span className="text-primary">AI</span>
+              Bili<span className="text-primary">mo</span>
             </span>
           </Link>
           <Link
