@@ -17,11 +17,11 @@ function MiniCoin({ size = 28 }: { size?: number }) {
 }
 
 const SPOTS = [
-  { top: "12%", left: "6%", size: 26, cls: "animate-float parallax-up", opacity: 0.7 },
+  { top: "3%", left: "3%", size: 24, cls: "animate-float parallax-up", opacity: 0.55 },
   { top: "24%", right: "8%", size: 34, cls: "animate-float-slow parallax-down", opacity: 0.8 },
-  { top: "58%", left: "12%", size: 20, cls: "animate-float-slow parallax-up", opacity: 0.5 },
+  { top: "64%", left: "3%", size: 18, cls: "animate-float-slow parallax-up", opacity: 0.45 },
   { top: "70%", right: "14%", size: 24, cls: "animate-float parallax-up", opacity: 0.6 },
-  { top: "40%", left: "44%", size: 16, cls: "animate-float-slow parallax-down", opacity: 0.4 },
+  { top: "44%", right: "3%", size: 15, cls: "animate-float-slow parallax-down", opacity: 0.35 },
 ] as const;
 
 export default function FloatingCoins({ className = "" }: { className?: string }) {

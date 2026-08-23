@@ -313,14 +313,14 @@ export default function DuelPage() {
           </Card>
         )}
 
+        {phase === "done" && winnerId !== null && winnerId === myId && (
+          <>
+            <Confetti coins count={16} />
+            <Confetti count={22} />
+          </>
+        )}
         {phase === "done" && (
           <Card className="fx-rise p-6 text-center">
-            {winnerId !== null && winnerId === myId && (
-              <>
-                <Confetti coins count={16} />
-                <Confetti count={22} />
-              </>
-            )}
             <div className="text-6xl mb-3">
               <span className="fx-pop-in">
                 {winnerId !== null && winnerId === myId ? "🏆" : winnerId === null ? "⏳" : "😅"}

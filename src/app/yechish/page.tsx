@@ -188,9 +188,9 @@ export default function YechishPage() {
 
         {(phase === "result" || phase === "checked") && (
           <>
+            {phase === "checked" && result && result.correct === result.total && <Confetti />}
             {phase === "checked" && result && (
               <Card className="fx-rise text-center p-6 bg-gradient-to-br from-[#4F46E5] to-[#6D28D9] text-white border-0">
-                {result.correct === result.total && <Confetti />}
                 <div className="text-5xl mb-2">
                   <span className="fx-pop-in">
                     {result.correct === result.total ? "🎉" : result.correct > result.total / 2 ? "👏" : "💪"}

@@ -14,8 +14,7 @@
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .fx-rise {
-  opacity: 0;
-  animation: fx-rise 0.45s var(--fx-out) both;
+  animation: fx-rise 0.45s var(--fx-out) backwards;
   animation-delay: var(--fx-delay, 0ms);
 }
 
@@ -24,7 +23,7 @@
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.fx-fade-up { animation: fx-fade-up 0.3s var(--fx-out) both; }
+.fx-fade-up { animation: fx-fade-up 0.3s var(--fx-out) backwards; animation-delay: var(--fx-delay, 0ms); }
 
 /* --- Pop: to'g'ri javob / natija --- */
 @keyframes fx-pop {
@@ -40,7 +39,7 @@
   60%  { opacity: 1; transform: scale(1.15); }
   to   { opacity: 1; transform: scale(1); }
 }
-.fx-pop-in { display: inline-block; animation: fx-pop-in 0.5s var(--fx-out) both; }
+.fx-pop-in { display: inline-block; animation: fx-pop-in 0.5s var(--fx-out) backwards; }
 
 /* --- Shake: xato --- */
 @keyframes fx-shake {
@@ -111,7 +110,7 @@
   from { opacity: 0; transform: translateX(48px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-.fx-slide { animation: fx-slide 0.3s var(--fx-out) both; }
+.fx-slide { animation: fx-slide 0.3s var(--fx-out) backwards; }
 
 /* --- AI o'ylayapti: nuqtalar --- */
 @keyframes fx-dot {
@@ -132,7 +131,7 @@
   60%  { opacity: 1; }
   to   { opacity: 1; transform: translateY(0) rotateY(720deg); }
 }
-.fx-coin-drop { display: inline-flex; animation: fx-coin-drop 0.7s var(--fx-out) both; }
+.fx-coin-drop { display: inline-flex; animation: fx-coin-drop 0.7s var(--fx-out) backwards; }
 
 /* --- Konfetti / tanga yomg'iri --- */
 @keyframes fx-fall {
@@ -198,7 +197,7 @@
 @keyframes fx-fade-only { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   .fx-rise, .fx-fade-up, .fx-slide, .fx-pop-in, .fx-coin-drop, .fx-toast {
-    animation: fx-fade-only 0.15s ease both;
+    animation: fx-fade-only 0.15s ease backwards;
   }
   .fx-pop, .fx-shake, .fx-flame, .fx-coin-spin, .fx-medal, .fx-urgent,
   .fx-dot, .fx-wave-arm, .fx-antenna, .fx-mascot-jump, .fx-blink {

@@ -173,7 +173,7 @@ export default function Home() {
               {
                 n: "3",
                 title: "Test yech, tanga yut",
-                text: "Mini-testda to'g'ri javob — tanga. Tangalar reytingga qo'shiladi!",
+                text: "Mini-testda to'g'ri javob +5 tanga. Tangalar reytingga qo'shiladi!",
                 mood: "win" as const,
                 bg: "bg-[#fefce8]",
               },

@@ -38,7 +38,7 @@ export default function ChatDemo() {
           <div className="animate-pop d4 w-fit max-w-[90%] rounded-2xl rounded-bl-md bg-slate-100 px-4 py-2.5">
             <p className="font-extrabold text-primary">Qadam 1</p>
             <p className="mt-1">
-              Maxrajlarni tenglashtiramiz: 4 va 6 uchun eng kichik umumiy karrali —{" "}
+              Maxrajlarni tenglashtiramiz: 4 va 6 uchun eng kichik umumiy karrali:{" "}
               <b>12</b>
             </p>
           </div>
