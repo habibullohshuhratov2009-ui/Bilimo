@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import Coin from "@/components/ui/Coin";
@@ -26,6 +26,7 @@ import {
   IconUsers,
 } from "@/components/app/icons";
 import { useI18n } from "@/lib/i18n";
+import { useAutoRefresh } from "@/lib/hooks/useAutoRefresh";
 
 type Me = {
   ok: boolean;
@@ -72,24 +73,41 @@ export default function PanelPage() {
     }
   }, []);
 
-  const load = useCallback(() => {
-    fetch("/api/me")
-      .then(async (r) => {
-        if (r.status === 401) {
-          router.replace("/kirish");
-          return null;
-        }
-        return r.json();
-      })
-      .then((data) => {
-        if (!data) return;
-        if (data.ok) setMe(data);
-        else setError(data.error ?? t("common.error"));
-      })
-      .catch(() => setError(t("common.error")));
-  }, [router, t]);
+  // Ketma-ket 401 hisoblagichi: bitta tasodifiy 401 dan foydalanuvchini CHIQARIB YUBORMAYMIZ.
+  const unauth = useRef(0);
 
-  useEffect(load, [load]);
+  const load = useCallback(
+    (silent = false) => {
+      fetch("/api/me")
+        .then(async (r) => {
+          if (r.status === 401) {
+            unauth.current += 1;
+            // Faqat ishonch hosil qilgach chiqaramiz (tarmoq sakrashi sabab emas).
+            if (unauth.current >= 2 || !silent) router.replace("/kirish");
+            return null;
+          }
+          unauth.current = 0;
+          return r.json();
+        })
+        .then((data) => {
+          if (!data) return;
+          if (data.ok) {
+            setMe(data);
+            setError("");
+          } else if (!silent) setError(data.error ?? t("common.error"));
+        })
+        .catch(() => {
+          // Fonda yangilash yiqilsa — ekrandagi ma'lumot QOLADI, xato ko'rsatilmaydi.
+          if (!silent) setError(t("common.error"));
+        });
+    },
+    [router, t]
+  );
+
+  useEffect(() => load(), [load]);
+
+  const refresh = useCallback(() => load(true), [load]);
+  useAutoRefresh(refresh, 15_000);
 
   async function inviteFriend() {
     if (!me) return;
@@ -105,7 +123,7 @@ export default function PanelPage() {
     router.replace("/kirish");
   }
 
-  if (error) {
+  if (error && !me) {
     return (
       <main className="grid min-h-dvh place-items-center bg-[#F5F6FF] px-4">
         <Card className="w-full max-w-md p-6 text-center">
@@ -273,7 +291,7 @@ export default function PanelPage() {
           </Card>
         )}
 
-        {section === "shop" && <Shop coins={Number(me.coins)} onChanged={load} />}
+        {section === "shop" && <Shop coins={Number(me.coins)} onChanged={refresh} />}
       </DashShell>
     </>
   );

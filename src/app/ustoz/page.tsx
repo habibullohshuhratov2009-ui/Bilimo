@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -25,6 +25,7 @@ import {
   IconUsers,
 } from "@/components/app/icons";
 import { useI18n } from "@/lib/i18n";
+import { useAutoRefresh } from "@/lib/hooks/useAutoRefresh";
 
 type Student = {
   id: number;
@@ -74,24 +75,39 @@ export default function UstozPage() {
   const [aiBusy, setAiBusy] = useState(false);
   const [aiError, setAiError] = useState("");
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch("/api/teacher/class");
-      if (res.status === 401 || res.status === 403) {
-        router.replace("/kirish?role=teacher");
-        return;
+  // Bitta tasodifiy 401/403 dan o'qituvchini chiqarib yubormaymiz.
+  const unauth = useRef(0);
+
+  const load = useCallback(
+    async (silent = false) => {
+      try {
+        const res = await fetch("/api/teacher/class");
+        if (res.status === 401 || res.status === 403) {
+          unauth.current += 1;
+          if (unauth.current >= 2 || !silent) router.replace("/kirish?role=teacher");
+          return;
+        }
+        unauth.current = 0;
+        const d: ClassData = await res.json();
+        if (d.ok) {
+          setData(d);
+          setError("");
+        } else if (!silent) setError(d.error ?? t("common.error"));
+      } catch {
+        // Fonda yangilash yiqilsa — jadval joyida qoladi.
+        if (!silent) setError(t("common.error"));
       }
-      const d: ClassData = await res.json();
-      if (d.ok) setData(d);
-      else setError(d.error ?? t("common.error"));
-    } catch {
-      setError(t("common.error"));
-    }
-  }, [router, t]);
+    },
+    [router, t]
+  );
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // Yangi o'quvchi qo'shilsa 10 soniyada o'zi paydo bo'ladi (qo'lda yangilash shart emas).
+  const refresh = useCallback(() => load(true), [load]);
+  useAutoRefresh(refresh, 10_000);
 
   async function askAi() {
     setAiBusy(true);

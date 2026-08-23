@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Internet yo'q — Blimo</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #f5f6ff;
+        color: #0f172a;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        text-align: center;
+      }
+      .card {
+        max-width: 22rem;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        padding: 32px 24px;
+        box-shadow: 0 2px 12px rgb(15 23 42 / 6%);
+      }
+      h1 { margin: 16px 0 8px; font-size: 1.25rem; }
+      p { margin: 0; color: #64748b; line-height: 1.6; font-size: 0.95rem; }
+      button {
+        margin-top: 20px;
+        min-height: 48px;
+        width: 100%;
+        border: 0;
+        border-radius: 16px;
+        background: #4f46e5;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.8"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M2 8.8a15 15 0 0 1 20 0" />
+        <path d="M5 12.3a10 10 0 0 1 14 0" />
+        <path d="M8.5 15.8a5 5 0 0 1 7 0" />
+        <circle cx="12" cy="19.5" r="1" fill="#4f46e5" />
+        <path d="M3 3l18 18" stroke="#ef4444" />
+      </svg>
+      <h1>Internet yo'q</h1>
+      <p>
+        Aloqa tiklanganda sahifa ochiladi. Hisobingdan chiqmagansan — internet qaytishi bilan
+        hammasi joyida bo'ladi.
+      </p>
+      <button onclick="location.reload()">Qayta urinish</button>
+    </div>
+  </body>
+</html>
