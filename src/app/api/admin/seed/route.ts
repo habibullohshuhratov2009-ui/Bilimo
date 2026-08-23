@@ -26,6 +26,9 @@ export async function POST(req: Request) {
       await q(`DELETE FROM events WHERE user_id = $1`, [r.id]);
       await q(`DELETE FROM duels WHERE player_a = $1 OR player_b = $1`, [r.id]);
       await q(`DELETE FROM quizzes WHERE created_by = $1`, [r.id]);
+      // Yangi jadvallar (ko'p-sinf va PIN tiklash) ham tozalanadi, aks holda FK to'sadi
+      await q(`DELETE FROM class_members WHERE user_id = $1`, [r.id]);
+      await q(`DELETE FROM password_resets WHERE user_id = $1`, [r.id]);
       await q(`DELETE FROM users WHERE id = $1`, [r.id]);
       removed++;
     }
