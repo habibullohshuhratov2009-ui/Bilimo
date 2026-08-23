@@ -157,3 +157,145 @@ export function IconPlay(p: IconProps) {
     </Svg>
   );
 }
+
+/* ——— Dashboard ikonkalari (emoji o'rniga) ——— */
+
+export function IconHome(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M3 10.5 12 3l9 7.5" />
+      <path d="M5 9.8V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.8" />
+    </Svg>
+  );
+}
+
+export function IconChart(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+      <rect x="7" y="12" width="3" height="6" rx="1" />
+      <rect x="12.5" y="8" width="3" height="10" rx="1" />
+      <rect x="18" y="4.5" width="3" height="13.5" rx="1" />
+    </Svg>
+  );
+}
+
+export function IconUsers(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20" />
+      <circle cx="9" cy="7" r="3.4" />
+      <path d="M22 20v-1.5a4 4 0 0 0-3-3.87" />
+      <path d="M16.5 3.7a4 4 0 0 1 0 7.1" />
+    </Svg>
+  );
+}
+
+export function IconSparkles(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M12 3.5 13.6 8 18 9.6 13.6 11.2 12 15.7 10.4 11.2 6 9.6 10.4 8z" />
+      <path d="M18.5 15.5l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z" />
+      <path d="M5 15l.5 1.4 1.4.5-1.4.5L5 18.8l-.5-1.4L3.1 17l1.4-.5z" />
+    </Svg>
+  );
+}
+
+export function IconCoinS(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M14.6 9.3a3 3 0 0 0-2.6-1.3c-1.5 0-2.6.8-2.6 2s1.1 1.8 2.6 2 2.6.8 2.6 2-1.1 2-2.6 2a3 3 0 0 1-2.6-1.3" />
+      <path d="M12 6.2v1.8M12 16v1.8" />
+    </Svg>
+  );
+}
+
+export function IconFlame(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M12 21c3.5 0 6-2.3 6-5.5 0-3.8-3.4-5.6-4.2-9.5-2 1.4-2.8 3.2-2.6 5.3-1-.5-1.6-1.4-1.8-2.6C7.6 10.3 6 12.4 6 15.5 6 18.7 8.5 21 12 21z" />
+    </Svg>
+  );
+}
+
+export function IconLogout(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M14 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8" />
+      <path d="M17 15.5 20.5 12 17 8.5" />
+      <path d="M20.5 12H10" />
+    </Svg>
+  );
+}
+
+export function IconSearch(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4.5 4.5" />
+    </Svg>
+  );
+}
+
+export function IconMenu(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </Svg>
+  );
+}
+
+export function IconClose(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M6 6l12 12M18 6 6 18" />
+    </Svg>
+  );
+}
+
+export function IconPencil(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z" />
+      <path d="M14.5 6.5 17.5 9.5" />
+    </Svg>
+  );
+}
+
+export function IconTarget(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="4.5" />
+      <circle cx="12" cy="12" r="1" />
+    </Svg>
+  );
+}
+
+export function IconChevron(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="m9 5 7 7-7 7" />
+    </Svg>
+  );
+}
+
+export function IconDownload(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M12 4v10m0 0-4.2-4.2M12 14l4.2-4.2" />
+      <path d="M4.5 16.5v1.8A2.7 2.7 0 0 0 7.2 21h9.6a2.7 2.7 0 0 0 2.7-2.7v-1.8" />
+    </Svg>
+  );
+}
+
+export function IconMedal(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <circle cx="12" cy="14.5" r="5.5" />
+      <path d="M9.5 9.2 7 3h10l-2.5 6.2" />
+      <path d="m12 12 .9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2L9.1 14.2l2-.3z" />
+    </Svg>
+  );
+}

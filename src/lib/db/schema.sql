@@ -1,4 +1,4 @@
--- Bilimo — Postgres sxemasi (hakaton final, 23.08.2026)
+-- Blimo — Postgres sxemasi (hakaton final, 23.08.2026)
 -- Prinsip: pul/ball hech qachon UPDATE bilan emas — coin_ledger append-only, balans = SUM.
 
 CREATE TABLE IF NOT EXISTS schools (
@@ -177,6 +177,67 @@ INSERT INTO class_members (user_id, class_id, role)
 SELECT c.teacher_id, c.id, 'teacher' FROM classes c
 WHERE c.teacher_id IS NOT NULL
 ON CONFLICT (user_id, class_id) DO NOTHING;
+-- ==============================================================================
+
+-- ============ MIGRATSIYA-3 (23.08.2026): SINF RAQAMI BITTA MANBADAN ============
+-- Muammo: o'qituvchi "11-V sinf" ochadi, o'quvchi esa o'zini "7-sinf" deb yozardi.
+-- Yechim: sinf raqami classes.grade da saqlanadi va o'quvchiga SHUNDAN beriladi.
+ALTER TABLE classes ADD COLUMN IF NOT EXISTS grade INT;
+UPDATE classes SET grade = (substring(name from '\d{1,2}'))::INT
+ WHERE grade IS NULL AND substring(name from '\d{1,2}') IS NOT NULL;
+UPDATE classes SET grade = NULL WHERE grade IS NOT NULL AND (grade < 1 OR grade > 11);
+-- Mavjud o'quvchilar sinfiga moslashtiriladi
+UPDATE users u SET grade = c.grade FROM classes c
+ WHERE u.class_id = c.id AND c.grade IS NOT NULL AND u.role = 'student'
+   AND (u.grade IS DISTINCT FROM c.grade);
+-- ==============================================================================
+
+-- ============ MIGRATSIYA-4 (23.08.2026): DO'KON (tanga -> sovrin) ============
+CREATE TABLE IF NOT EXISTS shop_items (
+  id         BIGSERIAL PRIMARY KEY,
+  code       TEXT NOT NULL UNIQUE,
+  title_uz   TEXT NOT NULL,
+  title_ru   TEXT NOT NULL,
+  descr_uz   TEXT NOT NULL,
+  descr_ru   TEXT NOT NULL,
+  price      INT  NOT NULL CHECK (price > 0),
+  icon       TEXT NOT NULL DEFAULT 'gift',   -- ikonka kaliti (emoji EMAS)
+  stock      INT,                            -- NULL = cheklanmagan
+  is_active  BOOLEAN NOT NULL DEFAULT true,
+  sort       INT NOT NULL DEFAULT 100
+);
+
+CREATE TABLE IF NOT EXISTS purchases (
+  id          BIGSERIAL PRIMARY KEY,
+  user_id     BIGINT NOT NULL REFERENCES users(id),
+  item_id     BIGINT NOT NULL REFERENCES shop_items(id),
+  price       INT NOT NULL,
+  reward_code TEXT NOT NULL,                 -- o'quvchiga beriladigan kod
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS purchases_user_idx ON purchases(user_id, created_at DESC);
+
+-- Boshlang'ich sovrinlar (idempotent)
+INSERT INTO shop_items (code, title_uz, title_ru, descr_uz, descr_ru, price, icon, sort) VALUES
+ ('claude_pro',  'Claude Pro — 1 oy',        'Claude Pro — 1 месяц',
+  'Claude Pro obunasiga 1 oylik promokod. Sovrin o''qituvchi orqali beriladi.',
+  'Промокод на 1 месяц подписки Claude Pro. Приз выдаёт учитель.', 3000, 'sparkles', 10),
+ ('chatgpt_plus','ChatGPT Plus — 1 oy',      'ChatGPT Plus — 1 месяц',
+  'ChatGPT Plus obunasiga 1 oylik promokod.',
+  'Промокод на 1 месяц подписки ChatGPT Plus.', 3000, 'sparkles', 20),
+ ('blimo_pro',   'Blimo PRO — 1 oy',         'Blimo PRO — 1 месяц',
+  'Cheksiz savol, tezroq javob va maxsus duel rejimlari.',
+  'Безлимитные вопросы, быстрый ответ и особые режимы дуэли.', 1500, 'bolt', 30),
+ ('course_50',   'Onlayn kursga 50% chegirma','Скидка 50% на онлайн-курс',
+  'Hamkor IT-maktab kurslariga 50% chegirma kuponi.',
+  'Купон на скидку 50% в партнёрской IT-школе.', 1200, 'target', 40),
+ ('avatar_gold', 'Oltin ramka (avatar)',      'Золотая рамка (аватар)',
+  'Reytingda ismingiz oltin ramkada ko''rinadi.',
+  'В рейтинге твоё имя будет в золотой рамке.', 400, 'medal', 50),
+ ('streak_save', 'Kunni saqlash',             'Спасение серии',
+  'Bir kun o''tkazib yuborsang, ketma-ket kunlaring kuyib ketmaydi.',
+  'Пропустил день — серия не сгорит.', 120, 'flame', 60)
+ON CONFLICT (code) DO NOTHING;
 -- ==============================================================================
 
 CREATE OR REPLACE VIEW v_leaderboard AS

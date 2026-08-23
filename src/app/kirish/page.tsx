@@ -218,21 +218,12 @@ function KirishInner() {
     </div>
   );
 
+  // Sinf raqami o'qituvchi ochgan sinfdan olinadi — o'quvchi o'zi tanlamaydi.
+  // Aks holda ustozda "11-V", o'quvchida "7-sinf" degan ziddiyat chiqardi.
   const gradeSelect = (
-    <label className="block">
-      <span className="block text-sm font-semibold text-[#334155] mb-1.5">Nechanchi sinfda o'qiysan?</span>
-      <select
-        value={grade}
-        onChange={(e) => setGrade(Number(e.target.value))}
-        className="w-full min-h-12 px-4 rounded-2xl border-2 border-slate-200 bg-white text-base outline-none focus:border-[#4F46E5]"
-      >
-        {Array.from({ length: 11 }, (_, i) => i + 1).map((g) => (
-          <option key={g} value={g}>
-            {g}-sinf
-          </option>
-        ))}
-      </select>
-    </label>
+    <p className="rounded-2xl bg-[#F1F5F9] px-4 py-3 text-sm text-[#475569]">
+      🎓 Sinfing <b>o'qituvchi kodi</b> bo'yicha avtomatik aniqlanadi.
+    </p>
   );
 
   // ——— Google bilan birinchi kirish: faqat sinf kodi so'raladi ———
@@ -242,7 +233,7 @@ function KirishInner() {
         <div className="max-w-md mx-auto">
           <div className="fx-rise text-center mb-6">
             <Mascot mood={success ? "happy" : "hello"} size={92} />
-            <h1 className="text-3xl font-extrabold text-[#4F46E5]">Bilimo</h1>
+            <h1 className="text-3xl font-extrabold text-[#4F46E5]">Blimo</h1>
             <p className="text-[#64748B] mt-1">Deyarli tayyor! Endi sinfingga qo'shil 🎒</p>
           </div>
           <Card className="fx-rise p-5" style={{ "--fx-delay": "120ms" } as CSSProperties}>
@@ -272,7 +263,7 @@ function KirishInner() {
       <div className="max-w-md mx-auto">
         <div className="fx-rise text-center mb-6">
           <Mascot mood={success ? "happy" : busy ? "thinking" : "hello"} size={92} />
-          <h1 className="text-3xl font-extrabold text-[#4F46E5]">Bilimo</h1>
+          <h1 className="text-3xl font-extrabold text-[#4F46E5]">Blimo</h1>
           <p className="text-[#64748B] mt-1">
             {success ? "Xush kelibsan! 🎉" : "O'qi, yech, tanga yig' — sinfda birinchi bo'l!"}
           </p>

@@ -1,94 +1,78 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
-import CountUp from "@/components/app/CountUp";
-import "@/components/app/fx.css";
 import Coin from "@/components/ui/Coin";
 import Spinner from "@/components/ui/Spinner";
+import Button from "@/components/ui/Button";
 import { copyText } from "@/components/ui/CopyButton";
+import DashShell, { type NavItem } from "@/components/dash/DashShell";
+import Stat from "@/components/dash/Stat";
+import Shop from "@/components/dash/Shop";
+import Onboarding from "@/components/app/Onboarding";
+import "@/components/app/fx.css";
+import {
+  IconBook,
+  IconBulb,
+  IconCheck,
+  IconCoinS,
+  IconFlame,
+  IconHome,
+  IconMedal,
+  IconSwords,
+  IconTrophy,
+  IconUserPlus,
+  IconUsers,
+} from "@/components/app/icons";
+import { useI18n } from "@/lib/i18n";
 
 type Me = {
   ok: boolean;
-  user: { id: number; nickname: string; name?: string; role: string; class_id: number | null; grade: number | null };
+  user: {
+    id: number;
+    nickname: string;
+    name?: string;
+    role: string;
+    class_id: number | null;
+    grade: number | null;
+  };
   coins: number;
   class: { name: string; code: string } | null;
   topic: { id: number; title: string; subject: string | null } | null;
   leaderboard: { nickname: string; name?: string; coins: number | string; streak: number | string }[];
 };
 
-const MEDALS = ["🥇", "🥈", "🥉"];
-
-const delay = (ms: number) => ({ "--fx-delay": `${ms}ms` }) as CSSProperties;
-
-const ONB_KEY = "bilimo_onb_v1";
-const ONB_STEPS = [
-  { icon: "💬", title: "Savolingni yoz", text: "Uy vazifangdagi savolni yoz — Bilimo javobni bermaydi, qadam-baqadam TUSHUNTIRADI." },
-  { icon: "🪙", title: "Mini-test ishla", text: "Har tushuntirishdan keyin kichik test chiqadi. To'g'ri javob = tanga." },
-  { icon: "⚔️", title: "Do'stingni chaqir", text: "Tangalar sinf reytingiga yoziladi. Sinfdoshingni duelga chaqir va kim zo'rligini ko'rsat." },
-];
-
-function Onboarding({ onClose }: { onClose: () => void }) {
-  const [step, setStep] = useState(0);
-  const last = step === ONB_STEPS.length - 1;
-  const s = ONB_STEPS[step];
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 px-4 pb-6 sm:items-center sm:pb-0">
-      <div className="fx-rise w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl">
-        <div className="text-4xl">{s.icon}</div>
-        <h2 className="mt-3 text-xl font-extrabold">{s.title}</h2>
-        <p className="mt-2 text-sm leading-relaxed text-[#64748B]">{s.text}</p>
-        <div className="mt-5 flex items-center justify-center gap-1.5">
-          {ONB_STEPS.map((_, i) => (
-            <span
-              key={i}
-              className={`h-2 rounded-full transition-all ${i === step ? "w-6 bg-[#4F46E5]" : "w-2 bg-[#CBD5E1]"}`}
-            />
-          ))}
-        </div>
-        <button
-          onClick={() => (last ? onClose() : setStep(step + 1))}
-          className="mt-5 h-12 w-full rounded-2xl bg-[#4F46E5] text-base font-extrabold text-white transition-transform active:scale-[0.98]"
-        >
-          {last ? "Boshladik! 🚀" : "Keyingisi"}
-        </button>
-        {!last && (
-          <button onClick={onClose} className="mt-2 h-11 w-full text-sm font-semibold text-[#94A3B8]">
-            O'tkazib yuborish
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
+const ONB_KEY = "blimo_onb_v1";
+const MEDAL_TONE = ["text-[#EAB308]", "text-[#94A3B8]", "text-[#B45309]"];
 
 export default function PanelPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [me, setMe] = useState<Me | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const [showOnb, setShowOnb] = useState(false);
+  const [section, setSection] = useState("home");
 
   useEffect(() => {
     try {
       if (!localStorage.getItem(ONB_KEY)) setShowOnb(true);
     } catch {
-      /* localStorage yopiq bo'lsa — onboarding shunchaki ko'rsatilmaydi */
+      /* localStorage yopiq bo'lsa — onboarding ko'rsatilmaydi, sahifa ishlayveradi */
     }
   }, []);
 
-  function closeOnb() {
+  const closeOnb = useCallback(() => {
     setShowOnb(false);
     try {
       localStorage.setItem(ONB_KEY, "1");
     } catch {
       /* ignore */
     }
-  }
+  }, []);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     fetch("/api/me")
       .then(async (r) => {
         if (r.status === 401) {
@@ -100,15 +84,18 @@ export default function PanelPage() {
       .then((data) => {
         if (!data) return;
         if (data.ok) setMe(data);
-        else setError(data.error ?? "Ma'lumot yuklanmadi");
+        else setError(data.error ?? t("common.error"));
       })
-      .catch(() => setError("Server bilan aloqa uzildi. Sahifani yangilang."));
-  }, [router]);
+      .catch(() => setError(t("common.error")));
+  }, [router, t]);
+
+  useEffect(load, [load]);
 
   async function inviteFriend() {
     if (!me) return;
-    const link = `${location.origin}/kirish?invite=${encodeURIComponent(me.user.nickname.toUpperCase())}`;
-    await copyText(link);
+    await copyText(
+      `${location.origin}/kirish?invite=${encodeURIComponent(me.user.nickname.toUpperCase())}`
+    );
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   }
@@ -120,10 +107,12 @@ export default function PanelPage() {
 
   if (error) {
     return (
-      <main className="min-h-dvh bg-[#F8FAFC] flex items-center justify-center px-4">
-        <Card className="max-w-md w-full text-center p-6">
-          <div className="text-4xl mb-2">😕</div>
+      <main className="grid min-h-dvh place-items-center bg-[#F5F6FF] px-4">
+        <Card className="w-full max-w-md p-6 text-center">
           <p className="font-semibold text-[#DC2626]">{error}</p>
+          <Button variant="outline" className="mt-4" onClick={() => location.reload()}>
+            {t("common.retry")}
+          </Button>
         </Card>
       </main>
     );
@@ -131,127 +120,161 @@ export default function PanelPage() {
 
   if (!me) {
     return (
-      <main className="min-h-dvh bg-[#F8FAFC] flex items-center justify-center">
+      <main className="grid min-h-dvh place-items-center bg-[#F5F6FF]">
         <Spinner size={36} />
       </main>
     );
   }
 
-  const myStreak = Number(
-    me.leaderboard.find((r) => r.nickname === me.user.nickname)?.streak ?? 0
-  );
+  const myIndex = me.leaderboard.findIndex((r) => r.nickname === me.user.nickname);
+  const myStreak = Number(me.leaderboard[myIndex]?.streak ?? 0);
+  const displayName = me.user.name ?? me.user.nickname;
+
+  const nav: NavItem[] = [
+    { id: "home", label: t("nav.student.home"), icon: <IconHome size={20} /> },
+    { id: "ask", label: t("nav.student.ask"), icon: <IconBulb size={20} /> },
+    { id: "duel", label: t("nav.student.duel"), icon: <IconSwords size={20} /> },
+    { id: "rating", label: t("nav.student.rating"), icon: <IconTrophy size={20} /> },
+    { id: "shop", label: t("nav.student.shop"), icon: <IconMedal size={20} /> },
+  ];
+
+  // "ask" va "duel" — alohida sahifalar, qolganlari shu paneldagi bo'limlar.
+  function select(id: string) {
+    if (id === "ask") return router.push("/yechish");
+    if (id === "duel") return router.push("/duel");
+    setSection(id);
+  }
 
   return (
-    <main className="min-h-dvh bg-[#F8FAFC] text-[#0F172A] px-4 py-6">
+    <>
       {showOnb && <Onboarding onClose={closeOnb} />}
-      <div className="max-w-md mx-auto flex flex-col gap-4">
-        <header className="fx-rise flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-extrabold">Salom, {me.user.name ?? me.user.nickname}! 👋</h1>
-            {me.class && (
-              <p className="text-sm text-[#64748B] mt-0.5">
-                {me.class.name} · kod: <span className="font-mono font-bold">{me.class.code}</span>
-              </p>
-            )}
-          </div>
-          <button onClick={logout} className="text-sm text-[#94A3B8] hover:text-[#DC2626] font-semibold">
-            Chiqish
-          </button>
-        </header>
+      <DashShell
+        title={t("student.greeting", { name: displayName })}
+        subtitle={
+          me.class ? `${me.class.name} · ${t("student.classCode")}: ${me.class.code}` : undefined
+        }
+        nav={nav}
+        active={section}
+        onSelect={select}
+        userName={displayName}
+        userMeta={
+          <span className="inline-flex items-center gap-1">
+            <Coin size={14} /> {Number(me.coins)}
+          </span>
+        }
+        onLogout={logout}
+      >
+        {section === "home" && (
+          <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <Stat icon={<IconCoinS size={20} />} value={Number(me.coins)} label={t("student.coins")} tone="coin" />
+              <Stat icon={<IconFlame size={20} />} value={myStreak} label={t("student.streak")} tone="rose" />
+              <Stat
+                icon={<IconTrophy size={20} />}
+                value={myIndex >= 0 ? myIndex + 1 : 0}
+                label={t("student.rating")}
+              />
+              <Stat
+                icon={<IconUsers size={20} />}
+                value={me.leaderboard.length}
+                label={t("teacher.students")}
+                tone="mint"
+              />
+            </div>
 
-        <Card className="fx-rise bg-gradient-to-br from-[#4F46E5] to-[#6D28D9] text-white border-0 p-5" style={delay(60)}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-indigo-200 text-sm font-semibold">Tangalarim</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="fx-coin-spin"><Coin size={40} /></span>
-                <CountUp value={Number(me.coins)} duration={1100} className="text-5xl font-extrabold" />
+            <Card className="flex items-center gap-3 p-5">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#EEF2FF] text-[#4F46E5]">
+                <IconBook size={22} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-[#64748B]">{t("student.todayTopic")}</p>
+                <p className="truncate font-bold">
+                  {me.topic ? me.topic.title : t("student.noTopic")}
+                  {me.topic?.subject && (
+                    <span className="font-semibold text-[#64748B]"> · {me.topic.subject}</span>
+                  )}
+                </p>
               </div>
-            </div>
-            <div className="text-center bg-white/15 rounded-2xl px-4 py-3">
-              <div className="text-3xl fx-flame">🔥</div>
-              <CountUp value={myStreak} duration={900} className="block text-2xl font-extrabold" />
-              <div className="text-xs text-indigo-200 font-semibold">kun streak</div>
+            </Card>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <button
+                onClick={() => router.push("/yechish")}
+                className="flex min-h-[4.5rem] items-center gap-3 rounded-2xl bg-[#4F46E5] px-5 text-left font-extrabold text-white shadow-[0_4px_0_#3730A3] transition-all hover:bg-[#4338CA] active:translate-y-[3px] active:shadow-[0_1px_0_#3730A3]"
+              >
+                <IconBulb size={24} /> {t("student.askButton")}
+              </button>
+              <button
+                onClick={() => router.push("/duel")}
+                className="flex min-h-[4.5rem] items-center gap-3 rounded-2xl bg-[#FACC15] px-5 text-left font-extrabold text-[#713F12] shadow-[0_4px_0_#A16207] transition-all hover:bg-[#EAB308] active:translate-y-[3px] active:shadow-[0_1px_0_#A16207]"
+              >
+                <IconSwords size={24} /> {t("student.duelButton")}
+              </button>
+              <button
+                onClick={inviteFriend}
+                className={`flex min-h-[4.5rem] items-center gap-3 rounded-2xl border-2 px-5 text-left font-extrabold transition-colors ${
+                  copied
+                    ? "border-[#16A34A] bg-[#16A34A] text-white"
+                    : "border-[#DFE4FF] bg-white text-[#4F46E5] hover:bg-[#FBFCFF]"
+                }`}
+              >
+                {copied ? <IconCheck size={24} /> : <IconUserPlus size={24} />}
+                {copied ? t("common.copied") : t("student.invite")}
+              </button>
             </div>
           </div>
-        </Card>
+        )}
 
-        <Card className="fx-rise flex items-center gap-3" style={delay(120)}>
-          <div className="text-3xl">📚</div>
-          <div>
-            <p className="text-xs font-semibold text-[#64748B]">Bugungi mavzu</p>
-            <p className="font-bold">
-              {me.topic ? me.topic.title : "Mavzu hali belgilanmagan"}
-              {me.topic?.subject ? <span className="text-[#64748B] font-semibold"> · {me.topic.subject}</span> : null}
-            </p>
-          </div>
-        </Card>
+        {section === "rating" && (
+          <Card className="p-5">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-extrabold">
+              <IconTrophy size={20} /> {t("student.rating")}
+            </h2>
+            {me.leaderboard.length === 0 ? (
+              <p className="text-sm text-[#64748B]">{t("common.empty")}</p>
+            ) : (
+              <ol className="flex flex-col gap-1.5">
+                {me.leaderboard.slice(0, 20).map((row, i) => {
+                  const isMe = row.nickname === me.user.nickname;
+                  return (
+                    <li
+                      key={row.nickname}
+                      className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 ${
+                        isMe ? "border-2 border-[#4F46E5]/30 bg-indigo-50" : "bg-slate-50"
+                      }`}
+                    >
+                      <span className="grid w-8 place-items-center font-extrabold">
+                        {i < 3 ? (
+                          <IconMedal size={20} className={MEDAL_TONE[i]} />
+                        ) : (
+                          <span className="text-sm text-[#94A3B8]">{i + 1}</span>
+                        )}
+                      </span>
+                      <span className="flex-1 truncate font-bold">
+                        {row.name ?? row.nickname}
+                        {isMe && (
+                          <span className="ml-1 text-xs font-extrabold text-[#4F46E5]">
+                            ({t("student.you")})
+                          </span>
+                        )}
+                      </span>
+                      <span className="flex items-center gap-1 font-extrabold tabular-nums">
+                        <Coin size={18} /> {Number(row.coins)}
+                      </span>
+                      <span className="flex w-12 items-center justify-end gap-0.5 text-sm font-semibold tabular-nums text-[#64748B]">
+                        <IconFlame size={14} />
+                        {Number(row.streak)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+          </Card>
+        )}
 
-        <div className="fx-rise flex flex-col gap-3" style={delay(180)}>
-          <Link
-            href="/yechish"
-            className="min-h-14 rounded-2xl bg-[#4F46E5] text-white font-bold text-lg flex items-center justify-center gap-2 shadow-[0_4px_0_#3730A3] active:shadow-none active:translate-y-1 active:scale-[0.98] transition-all hover:bg-[#4338CA]"
-          >
-            🧠 Masala yechish
-          </Link>
-          <Link
-            href="/duel"
-            className="min-h-14 rounded-2xl bg-[#FACC15] text-[#0F172A] font-bold text-lg flex items-center justify-center gap-2 shadow-[0_4px_0_#CA8A04] active:shadow-none active:translate-y-1 active:scale-[0.98] transition-all hover:bg-[#EAB308]"
-          >
-            ⚔️ Duelga chaqirish
-          </Link>
-          <button
-            onClick={inviteFriend}
-            className={`fx-press min-h-14 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-colors border-2 active:scale-[0.98] ${
-              copied
-                ? "bg-[#16A34A] border-[#16A34A] text-white"
-                : "bg-white border-[#4F46E5] text-[#4F46E5] hover:bg-indigo-50"
-            }`}
-          >
-            {copied ? "Havola nusxalandi ✓" : "🤝 Do'stni chaqir (+30 tanga)"}
-          </button>
-        </div>
-
-        <Card className="fx-rise" style={delay(240)}>
-          <h2 className="font-extrabold text-lg mb-3">🏆 Sinf reytingi</h2>
-          {me.leaderboard.length === 0 ? (
-            <p className="text-sm text-[#64748B]">Hozircha reyting bo'sh — birinchi bo'l!</p>
-          ) : (
-            <ol className="flex flex-col gap-1.5">
-              {me.leaderboard.slice(0, 10).map((row, i) => {
-                const isMe = row.nickname === me.user.nickname;
-                return (
-                  <li
-                    key={row.nickname}
-                    style={delay(320 + i * 50)}
-                    className={`fx-rise flex items-center gap-3 rounded-2xl px-3 py-2.5 ${
-                      isMe ? "bg-indigo-50 border-2 border-[#4F46E5]/30" : "bg-slate-50"
-                    }`}
-                  >
-                    <span className="w-8 text-center text-lg font-extrabold">
-                      {i < 3 ? (
-                        <span className="fx-medal" style={delay(i * 260)}>{MEDALS[i]}</span>
-                      ) : (
-                        <span className="text-[#94A3B8] text-sm">{i + 1}</span>
-                      )}
-                    </span>
-                    <span className="flex-1 font-bold truncate">
-                      {row.name ?? row.nickname}
-                      {isMe && <span className="text-[#4F46E5] text-xs font-extrabold ml-1">(sen)</span>}
-                    </span>
-                    <span className="flex items-center gap-1 font-extrabold tabular-nums">
-                      <Coin size={18} /> {Number(row.coins)}
-                    </span>
-                    <span className="text-sm text-[#64748B] font-semibold tabular-nums w-12 text-right">
-                      🔥{Number(row.streak)}
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
-          )}
-        </Card>
-      </div>
-    </main>
+        {section === "shop" && <Shop coins={Number(me.coins)} onChanged={load} />}
+      </DashShell>
+    </>
   );
 }

@@ -17,11 +17,14 @@ export async function POST(req: Request) {
   const grade = Number(body.grade);
   if (!codeRaw) return NextResponse.json({ ok: false, error: "Sinf kodi kerak" }, { status: 400 });
 
-  const cls = await one<{ id: number; name: string }>(`SELECT id, name FROM classes WHERE code = $1`, [codeRaw]);
+  const cls = await one<{ id: number; name: string; grade: number | null }>(
+    `SELECT id, name, grade FROM classes WHERE code = $1`, [codeRaw]);
   if (!cls) return NextResponse.json({ ok: false, error: "Bunday sinf kodi yo'q" }, { status: 400 });
 
-  await q(`UPDATE users SET class_id = $1, grade = COALESCE($2, grade) WHERE id = $3`,
-    [cls.id, Number.isInteger(grade) && grade >= 1 && grade <= 11 ? grade : null, user.id]);
+  // Sinf raqami sinfdan olinadi; o'quvchi tanlagani faqat sinf nomida raqam bo'lmasa ishlatiladi.
+  const fallback = Number.isInteger(grade) && grade >= 1 && grade <= 11 ? grade : null;
+  await q(`UPDATE users SET class_id = $1, grade = COALESCE($2, $3, grade) WHERE id = $4`,
+    [cls.id, cls.grade, fallback, user.id]);
   await track(user.id, "join_class", { classId: cls.id });
   return NextResponse.json({ ok: true, className: cls.name });
 }

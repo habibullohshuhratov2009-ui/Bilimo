@@ -1,4 +1,4 @@
-# Bilimo — maktab o'quvchilari uchun AI repetitor va tanga o'yini
+# Blimo — maktab o'quvchilari uchun AI repetitor va tanga o'yini
 
 Oddiy maktab uchun ilova: o'quvchi savolini yozadi — AI **o'zbek tilida qadam-baqadam**
 tushuntiradi, keyin mini-test beradi. To'g'ri javob — **tanga**. Sinfdoshi bilan **duel**
@@ -6,7 +6,7 @@ o'ynaydi. O'qituvchi sinf kodini beradi, kunlik mavzu qo'yadi va kim qanday ishl
 
 ## Nega bu kerak
 45 daqiqalik darsni 30 o'quvchiga bo'lsak — bitta bolaga 1,5 daqiqa qoladi.
-Repetitorga hamma ham pul to'lay olmaydi. Bilimo — har bolaga alohida sabrli ustoz,
+Repetitorga hamma ham pul to'lay olmaydi. Blimo — har bolaga alohida sabrli ustoz,
 telefonda, bepul, o'zbek tilida.
 
 ## Ishga tushirish

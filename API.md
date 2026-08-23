@@ -1,4 +1,4 @@
-# Bilimo — API shartnomasi (UI shunga tayanadi)
+# Blimo — API shartnomasi (UI shunga tayanadi)
 
 Barcha javoblar JSON. Xato: `{ok:false, error:"..."}` + HTTP kod.
 

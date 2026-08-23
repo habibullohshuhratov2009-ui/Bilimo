@@ -12,7 +12,7 @@ const p = await ctx.newPage();
 
 console.log("──── LENDING ────");
 await p.goto(B, { waitUntil: "networkidle" });
-console.log("  APK tugma:", await p.locator('a[href="/Bilimo.apk"]').count());
+console.log("  APK tugma:", await p.locator('a[href="/Blimo.apk"]').count());
 console.log("  Windows tugma:", await p.locator('a[href*="releases/latest"]').count());
 for (const [n, sel] of [["Yordam", 'header a[href="/yordam"]'], ["Kirish", 'header a[href="/kirish"]']]) {
   const bb = await p.locator(sel).first().boundingBox();

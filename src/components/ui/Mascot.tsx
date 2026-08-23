@@ -1,5 +1,5 @@
 /**
- * Zumi, Bilimo maskoti. Yumaloq "aql sharchasi": ko'zlari pirpiraydi,
+ * Zumi, Blimo maskoti. Yumaloq "aql sharchasi": ko'zlari pirpiraydi,
  * salomlashadi (happy), o'ylaydi (think), g'alabada sakraydi (win).
  * Sof SVG + CSS animatsiya (globals.css: m-eye, m-arm-wave, m-bob, m-jump, m-spark, m-think).
  */
@@ -33,7 +33,7 @@ export default function Mascot({
         height={size}
         viewBox="0 0 120 120"
         role="img"
-        aria-label="Zumi, Bilimo maskoti"
+        aria-label="Zumi, Blimo maskoti"
       >
         <defs>
           <radialGradient id="zumi-body" cx="38%" cy="30%" r="75%">

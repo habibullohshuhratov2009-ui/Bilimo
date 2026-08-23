@@ -51,3 +51,6 @@ next-env.d.ts
 /sub.json
 /duel.json
 *_code.txt
+
+# skrinshotlar
+/.shots/

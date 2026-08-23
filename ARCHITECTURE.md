@@ -1,4 +1,4 @@
-# Bilimo — arxitektura va ma'lumot oqimi
+# Blimo — arxitektura va ma'lumot oqimi
 
 > Hakaton final, 23.08.2026. Bu hujjat "ma'lumot qayerdan keladi, qayerga boradi" degan savolga javob beradi.
 

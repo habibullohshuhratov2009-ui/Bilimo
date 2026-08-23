@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Bilimo — maktab o'quvchilari uchun AI repetitor";
+export const alt = "Blimo — maktab o'quvchilari uchun AI repetitor";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -38,7 +38,7 @@ export default function OpengraphImage() {
           SA
         </div>
         <div style={{ marginTop: 36, fontSize: 76, fontWeight: 800 }}>
-          Bilimo
+          Blimo
         </div>
         <div
           style={{

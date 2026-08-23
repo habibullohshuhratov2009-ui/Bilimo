@@ -9,6 +9,6 @@ export const env = {
   anthropicKey: () => need("ANTHROPIC_API_KEY"),
   sessionSecret: () => need("SESSION_SECRET"),
   model: process.env.AI_MODEL ?? "claude-sonnet-5",
-  appName: "Bilimo",
+  appName: "Blimo",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
 };

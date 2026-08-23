@@ -190,7 +190,7 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <Mascot mood="happy" size={32} animated={false} />
             <span className="text-lg font-extrabold tracking-tight">
-              Bilim<span className="text-primary">o</span>
+              Blim<span className="text-primary">o</span>
             </span>
           </div>
           <nav className="flex items-center gap-3">
@@ -223,7 +223,7 @@ export default function Home() {
                 </span>
               </h1>
               <p className="animate-rise d3 mt-4 max-w-md text-lg leading-relaxed text-muted">
-                Bilimo savolingni qadam-baqadam tushuntiradi, to&apos;g&apos;ri
+                Blimo savolingni qadam-baqadam tushuntiradi, to&apos;g&apos;ri
                 javob uchun <b className="text-coin-dark">tanga</b> beradi.
                 Sinfdoshing bilan 1x1 duel!
               </p>
@@ -475,7 +475,7 @@ export default function Home() {
             </p>
             <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
               <a
-                href="/Bilimo.apk"
+                href="/Blimo.apk"
                 download
                 className="btn-3d btn-3d--primary h-12 px-6 text-sm"
               >
@@ -532,7 +532,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 py-8 text-center text-sm text-muted sm:flex-row sm:justify-between sm:text-left">
           <div className="flex items-center gap-2">
             <Mascot mood="happy" size={24} animated={false} />
-            <span className="font-bold text-foreground">Bilimo</span>
+            <span className="font-bold text-foreground">Blimo</span>
             <span>· AI bilan o&apos;qish o&apos;yinga aylanadi</span>
           </div>
           <nav className="flex gap-4 font-semibold">

@@ -4,6 +4,7 @@ import { q, one } from "@/lib/db/pool";
 import { hashPin, setSession } from "@/lib/auth/session";
 import { makeNickname, NAME_RE } from "@/lib/auth/names";
 import { track } from "@/lib/db/queries/events";
+import { parseGrade } from "@/lib/class/grade";
 import { rateLimit, clientIp } from "@/lib/security/ratelimit";
 import { addCoins } from "@/lib/db/queries/coins";
 
@@ -66,23 +67,28 @@ export async function POST(req: Request) {
   }
 
   let classId: number | null = null;
+  // Sinf raqami BITTA manbadan: o'qituvchi ochgan sinfdan. O'quvchi tanlagani faqat zaxira.
+  let grade: number | null = b.grade ?? null;
   if (b.role === "student") {
     if (!b.classCode) return NextResponse.json({ ok: false, error: "Sinf kodi kerak" }, { status: 400 });
-    const cls = await one<{ id: number }>(`SELECT id FROM classes WHERE code = $1`, [b.classCode.toUpperCase()]);
+    const cls = await one<{ id: number; grade: number | null }>(
+      `SELECT id, grade FROM classes WHERE code = $1`, [b.classCode.toUpperCase()]);
     if (!cls) return NextResponse.json({ ok: false, error: "Bunday sinf kodi yo'q" }, { status: 400 });
     classId = cls.id;
+    grade = cls.grade ?? grade;
   }
 
   const user = await one<{ id: number }>(
     `INSERT INTO users (nickname, first_name, last_name, email, role, pin_hash, class_id, grade, last_active)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8, CURRENT_DATE) RETURNING id`,
-    [nickname, firstName, lastName, b.email ?? null, b.role, hashPin(b.pin), classId, b.grade ?? null]);
+    [nickname, firstName, lastName, b.email ?? null, b.role, hashPin(b.pin), classId, grade]);
   if (!user) return NextResponse.json({ ok: false, error: "Saqlanmadi" }, { status: 500 });
 
   if (b.role === "teacher") {
+    const className = b.className?.trim() || `${firstName} sinfi`;
     const cls = await one<{ id: number; code: string }>(
-      `INSERT INTO classes (name, code, teacher_id) VALUES ($1,$2,$3) RETURNING id, code`,
-      [b.className?.trim() || `${firstName} sinfi`, code(), user.id]);
+      `INSERT INTO classes (name, code, teacher_id, grade) VALUES ($1,$2,$3,$4) RETURNING id, code`,
+      [className, code(), user.id, parseGrade(className)]);
     await q(`UPDATE users SET class_id = $1 WHERE id = $2`, [cls?.id ?? null, user.id]);
     classId = cls?.id ?? null;
   }

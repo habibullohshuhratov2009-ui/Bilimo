@@ -51,7 +51,7 @@ export default function ChatDemo() {
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
             <Mascot mood="happy" size={30} animated={false} />
-            <span className="text-sm font-extrabold">Bilimo</span>
+            <span className="text-sm font-extrabold">Blimo</span>
           </div>
           <span className="flex items-center gap-1 rounded-full grad-coin px-2.5 py-1 text-xs font-extrabold tabular-nums text-coin-deep shadow-sm">
             <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
