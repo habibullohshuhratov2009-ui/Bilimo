@@ -4,6 +4,7 @@ import { q, one } from "@/lib/db/pool";
 import { ask } from "@/lib/ai/claude";
 import { rateLimit } from "@/lib/security/ratelimit";
 import { track } from "@/lib/db/queries/events";
+import { leakedCanary, sanitizeAiOutput, withCanary, wrapUntrusted } from "@/lib/ai/guard";
 export const maxDuration = 60;
 
 const SYSTEM = `Sen — maktab o'qituvchisining yordamchisisan. Senga SINF STATISTIKASI beriladi.
@@ -49,9 +50,15 @@ export async function POST(req: Request) {
     .map((s) => `${s.nom}: tanga ${s.tanga}, urinish ${s.urinish}, to'g'ri ${s.togri}/${s.jami}, savol ${s.savol}, oxirgi faollik ${s.oxirgi ?? "yo'q"}`)
     .join("\n");
 
-  const prompt = `Sinf: ${cls.name}. Bugungi mavzu: ${topic?.title ?? "belgilanmagan"}.\nBugungi sana: ${new Date().toISOString().slice(0, 10)}.\n\nO'QUVCHILAR:\n${table}\n\nSavol: ${String(body?.question ?? "Sinf holati qanday? Kim orqada qolyapti, kim test ishlamayapti?").slice(0, 300)}`;
+  const prompt = `Sinf: ${cls.name}. Bugungi mavzu: ${topic?.title ?? "belgilanmagan"}.\nBugungi sana: ${new Date().toISOString().slice(0, 10)}.\n\nO'QUVCHILAR:\n${table}\n\nO'QITUVCHI SAVOLI (ishonchsiz matn):\n${wrapUntrusted(String(body?.question ?? "Sinf holati qanday? Kim orqada qolyapti, kim test ishlamayapti?"))}`;
 
-  const res = await ask(SYSTEM, prompt, 700);
+  const res = await ask(withCanary(SYSTEM), prompt, 700);
+  if (leakedCanary(res.text)) {
+    await track(user.id, "canary_leak", { route: "teacher_ai" });
+    return NextResponse.json({ ok: false, error: "Hisobot tuzilmadi, qayta urining" }, { status: 400 });
+  }
   await track(user.id, "teacher_ai", { classId: cls.id });
-  return NextResponse.json({ ok: true, class: cls.name, report: res.text, students: students.length });
+  return NextResponse.json({
+    ok: true, class: cls.name, report: sanitizeAiOutput(res.text), students: students.length,
+  });
 }

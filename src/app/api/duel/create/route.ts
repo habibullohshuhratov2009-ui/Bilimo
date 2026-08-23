@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth/session";
 import { ask, parseQuiz } from "@/lib/ai/claude";
+import { leakedCanary, withCanary, wrapUntrusted } from "@/lib/ai/guard";
 import { DUEL_SYSTEM } from "@/lib/ai/prompts";
 import { one } from "@/lib/db/pool";
 import { track } from "@/lib/db/queries/events";
@@ -28,7 +29,15 @@ export async function POST(req: Request) {
     : null;
   const theme = (topic || active?.title || "maktab dasturi: matematika va ona tili").toString().slice(0, 200);
 
-  const gen = await ask(DUEL_SYSTEM, `Mavzu: ${theme}. Sinf: ${user.grade ?? 7}-sinf.`, 900);
+  const gen = await ask(
+    withCanary(DUEL_SYSTEM),
+    `Sinf: ${user.grade ?? 7}-sinf.\n${wrapUntrusted(theme)}`,
+    900
+  );
+  if (leakedCanary(gen.text)) {
+    await track(user.id, "canary_leak", { route: "duel" });
+    return NextResponse.json({ ok: false, error: "Duel tuzilmadi, qayta urining" }, { status: 400 });
+  }
   const questions = parseQuiz(gen.text);
   const quiz = await one<{ id: number }>(
     `INSERT INTO quizzes (source, questions, created_by) VALUES ('duel',$1,$2) RETURNING id`,

@@ -5,7 +5,15 @@ import { EXPLAIN_SYSTEM, QUIZ_SYSTEM } from "@/lib/ai/prompts";
 import { one } from "@/lib/db/pool";
 import { track } from "@/lib/db/queries/events";
 import { rateLimit } from "@/lib/security/ratelimit";
-import { publicQuestions, wrapUserInput } from "@/lib/ai/sanitize";
+import { publicQuestions } from "@/lib/ai/sanitize";
+import {
+  detectInjection,
+  leakedCanary,
+  normalizeUserText,
+  sanitizeAiOutput,
+  withCanary,
+  wrapUntrusted,
+} from "@/lib/ai/guard";
 export const maxDuration = 60;
 
 /** Test tuzish — mexanik ish, arzon modelga beriladi (egasi: "aniq bo'lgach pastroq modelga ol"). */
@@ -21,19 +29,36 @@ export async function POST(req: Request) {
       { ok: false, error: `Biroz sekinroq — ${rl.retryAfter} soniyadan keyin urinib ko'ring` }, { status: 429 });
 
   const { text } = await req.json();
-  if (!text || String(text).trim().length < 3)
+  const question = normalizeUserText(text);
+  if (question.length < 3)
     return NextResponse.json({ ok: false, error: "Savolni yozing" }, { status: 400 });
+
+  // 1-qatlam: hujum shakllari. Bloklansa — AI ga umuman bormaydi (pul ham tejaladi).
+  const threat = detectInjection(question);
+  if (threat.blocked) {
+    await track(user.id, "injection_blocked", { hits: threat.hits, score: threat.score });
+    return NextResponse.json(
+      { ok: false, error: "Men faqat dars savollariga yordam beraman. Savolingni oddiy qilib yozib ko'r." },
+      { status: 400 });
+  }
+  if (threat.hits.length) await track(user.id, "injection_suspect", { hits: threat.hits, score: threat.score });
 
   // Tushuntirish — kuchli model (bola shuni o'qiydi). Test — tez va arzon model.
   // Ikkalasi PARALLEL ketadi: test tuzish uchun tushuntirish shart emas, savolning o'zi yetadi.
-  const question = String(text).slice(0, 2000);
   const [explain, quizRes] = await Promise.allSettled([
-    ask(EXPLAIN_SYSTEM, wrapUserInput(question), 520),
-    ask(QUIZ_SYSTEM, wrapUserInput(question), 700, QUIZ_MODEL),
+    ask(withCanary(EXPLAIN_SYSTEM), wrapUntrusted(question), 520),
+    ask(withCanary(QUIZ_SYSTEM), wrapUntrusted(question), 700, QUIZ_MODEL),
   ]);
   if (explain.status === "rejected")
     return NextResponse.json({ ok: false, error: "AI hozir javob bera olmadi, qayta urining" }, { status: 502 });
   const ex = explain.value;
+  // 4-qatlam: system oshkor bo'lganini tekshirish. Chiqib ketgan bo'lsa — javobni BERMAYMIZ.
+  if (leakedCanary(ex.text)) {
+    await track(user.id, "canary_leak", { route: "solve" });
+    return NextResponse.json(
+      { ok: false, error: "Bu savolga javob bera olmayman. Boshqacha yozib ko'r." }, { status: 400 });
+  }
+  ex.text = sanitizeAiOutput(ex.text);
   // Model ba'zan bo'sh javob qaytaradi (masalan tushunarsiz/base64 matnda) —
   // o'quvchi bo'sh kartani emas, tushunarli xabarni ko'rsin.
   if (!ex.text || ex.text.trim().length < 10)
