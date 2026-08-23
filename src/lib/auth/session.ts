@@ -1,0 +1,46 @@
+import { cookies } from "next/headers";
+import crypto from "node:crypto";
+import { one } from "@/lib/db/pool";
+
+const COOKIE = "sinf_session";
+
+export type SessionUser = {
+  id: number; nickname: string; role: "student" | "teacher";
+  class_id: number | null; grade: number | null;
+};
+
+export function hashPin(pin: string): string {
+  return crypto.createHash("sha256").update(`sinf-ai:${pin}`).digest("hex");
+}
+
+function sign(userId: number): string {
+  const secret = process.env.SESSION_SECRET ?? "dev-secret-almashtiriladi";
+  const mac = crypto.createHmac("sha256", secret).update(String(userId)).digest("hex").slice(0, 32);
+  return `${userId}.${mac}`;
+}
+
+function verify(token: string): number | null {
+  const [id, mac] = token.split(".");
+  if (!id || !mac) return null;
+  return sign(Number(id)) === token ? Number(id) : null;
+}
+
+export async function setSession(userId: number): Promise<void> {
+  const jar = await cookies();
+  jar.set(COOKIE, sign(userId), {
+    httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 60,
+  });
+}
+
+export async function clearSession(): Promise<void> {
+  (await cookies()).delete(COOKIE);
+}
+
+export async function currentUser(): Promise<SessionUser | null> {
+  const token = (await cookies()).get(COOKIE)?.value;
+  if (!token) return null;
+  const id = verify(token);
+  if (!id) return null;
+  return await one<SessionUser>(
+    `SELECT id, nickname, role, class_id, grade FROM users WHERE id = $1 AND is_deleted = false`, [id]);
+}
