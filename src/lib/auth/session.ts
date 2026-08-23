@@ -9,9 +9,7 @@ export type SessionUser = {
   class_id: number | null; grade: number | null;
 };
 
-export function hashPin(pin: string): string {
-  return crypto.createHash("sha256").update(`sinf-ai:${pin}`).digest("hex");
-}
+export { hashPinScrypt as hashPin, verifyPin, needsRehash } from "@/lib/security/pin";
 
 function sign(userId: number): string {
   const secret = process.env.SESSION_SECRET ?? "dev-secret-almashtiriladi";
@@ -28,7 +26,11 @@ function verify(token: string): number | null {
 export async function setSession(userId: number): Promise<void> {
   const jar = await cookies();
   jar.set(COOKIE, sign(userId), {
-    httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 60,
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 60,
   });
 }
 

@@ -9,9 +9,9 @@ function ai(): Anthropic {
 
 export type AiText = { text: string; model: string; inTokens: number; outTokens: number };
 
-export async function ask(system: string, user: string, maxTokens = 900): Promise<AiText> {
+export async function ask(system: string, user: string, maxTokens = 900, model?: string): Promise<AiText> {
   const res = await ai().messages.create({
-    model: env.model,
+    model: model ?? env.model,
     max_tokens: maxTokens,
     system,
     messages: [{ role: "user", content: user }],

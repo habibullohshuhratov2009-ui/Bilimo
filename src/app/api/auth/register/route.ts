@@ -3,11 +3,13 @@ import { z } from "zod";
 import { q, one } from "@/lib/db/pool";
 import { hashPin, setSession } from "@/lib/auth/session";
 import { track } from "@/lib/db/queries/events";
+import { rateLimit, clientIp } from "@/lib/security/ratelimit";
 import { addCoins } from "@/lib/db/queries/coins";
 
 const Body = z.object({
   nickname: z.string().min(2).max(24),
-  pin: z.string().min(4).max(8),
+  pin: z.string().min(4).max(8).regex(/^\d+$/, "PIN faqat raqamlardan iborat")
+    .refine((v) => !["0000", "1111", "1234", "12345", "123456"].includes(v), "Bunday PIN juda oson"),
   role: z.enum(["student", "teacher"]),
   classCode: z.string().optional(),
   className: z.string().optional(),
@@ -21,8 +23,15 @@ function code(len = 6) {
 }
 
 export async function POST(req: Request) {
+  const rl = rateLimit(`register:${clientIp(req)}`, 5, 60_000);
+  if (!rl.ok)
+    return NextResponse.json({ ok: false, error: "Juda ko'p urinish, biroz kuting" }, { status: 429 });
+
   const parsed = Body.safeParse(await req.json());
-  if (!parsed.success) return NextResponse.json({ ok: false, error: "Ma'lumot to'liq emas" }, { status: 400 });
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    return NextResponse.json({ ok: false, error: first?.message ?? "Ma'lumot to'liq emas" }, { status: 400 });
+  }
   const b = parsed.data;
 
   const exists = await one(`SELECT id FROM users WHERE nickname = $1`, [b.nickname]);
