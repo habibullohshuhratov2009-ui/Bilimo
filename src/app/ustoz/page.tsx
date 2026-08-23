@@ -201,7 +201,7 @@ export default function UstozPage() {
           <CopyButton
             text={data.class.code}
             label="Kodni nusxalash 📋"
-            className="w-full !border-white !text-white hover:!bg-white/10"
+            className="w-full !bg-transparent !border-white !text-white hover:!bg-white/10"
           />
         </Card>
 
