@@ -7,9 +7,10 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Coin from "@/components/ui/Coin";
 
-type Question = { q: string; options: string[]; correct: number; why?: string };
+type Question = { q: string; options: string[] };
+type ReviewItem = { correct: number; why: string };
 type SolveResp = { ok: boolean; error?: string; explanation?: string; quizId?: number | null; questions?: Question[] };
-type SubmitResp = { ok: boolean; error?: string; correct: number; total: number; coins: number; balance: number };
+type SubmitResp = { ok: boolean; error?: string; correct: number; total: number; coins: number; balance: number; review?: ReviewItem[] };
 
 type Phase = "input" | "loading" | "result" | "checked";
 
@@ -40,6 +41,7 @@ export default function YechishPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [result, setResult] = useState<SubmitResp | null>(null);
+  const [review, setReview] = useState<ReviewItem[]>([]);
   const [waitIdx, setWaitIdx] = useState(0);
   const startTs = useRef(0);
 
@@ -100,6 +102,7 @@ export default function YechishPage() {
         return;
       }
       setResult(data);
+      setReview(data.review ?? []);
       setPhase("checked");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
@@ -116,6 +119,7 @@ export default function YechishPage() {
     setQuestions([]);
     setAnswers([]);
     setResult(null);
+    setReview([]);
   }
 
   const allAnswered = answers.length > 0 && answers.every((a) => a !== null);
@@ -223,7 +227,7 @@ export default function YechishPage() {
                           const picked = answers[qi] === oi;
                           let cls = "border-slate-200 bg-white hover:border-[#4F46E5]/50";
                           if (phase === "checked") {
-                            if (oi === qq.correct) cls = "border-[#16A34A] bg-green-50 text-[#16A34A] font-bold";
+                            if (oi === review[qi]?.correct) cls = "border-[#16A34A] bg-green-50 text-[#16A34A] font-bold";
                             else if (picked) cls = "border-[#DC2626] bg-red-50 text-[#DC2626]";
                             else cls = "border-slate-200 bg-white opacity-60";
                           } else if (picked) {
@@ -240,14 +244,14 @@ export default function YechishPage() {
                             >
                               <span className="font-extrabold mr-2">{"ABCD"[oi]}.</span>
                               {opt}
-                              {phase === "checked" && oi === qq.correct && " ✓"}
+                              {phase === "checked" && oi === review[qi]?.correct && " ✓"}
                             </button>
                           );
                         })}
                       </div>
-                      {phase === "checked" && qq.why && (
+                      {phase === "checked" && review[qi]?.why && (
                         <p className="mt-2 text-sm text-[#64748B] bg-slate-50 rounded-2xl px-4 py-2.5">
-                          💡 {qq.why}
+                          💡 {review[qi]?.why}
                         </p>
                       )}
                     </div>

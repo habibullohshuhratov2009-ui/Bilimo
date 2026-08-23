@@ -9,7 +9,7 @@ import Coin from "@/components/ui/Coin";
 import CopyButton from "@/components/ui/CopyButton";
 import Spinner from "@/components/ui/Spinner";
 
-type Question = { q: string; options: string[]; correct: number; why?: string };
+type Question = { q: string; options: string[] };
 type Phase = "menu" | "creating" | "created" | "joining" | "play" | "finishing" | "done";
 
 const TIME_PER_Q = 15;
@@ -26,9 +26,10 @@ export default function DuelPage() {
   const [remaining, setRemaining] = useState(TIME_PER_Q);
   const [picked, setPicked] = useState<number | null>(null);
   const [score, setScore] = useState(0);
+  const [total, setTotal] = useState(0);
   const [winnerId, setWinnerId] = useState<number | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
-  const answersRef = useRef<(number | null)[]>([]);
+  const answersRef = useRef<number[]>([]);
 
   useEffect(() => {
     fetch("/api/me")
@@ -68,12 +69,10 @@ export default function DuelPage() {
   }
 
   function advance(answer: number | null) {
-    const list = [...answersRef.current, answer];
+    const list = [...answersRef.current, answer === null ? -1 : answer];
     answersRef.current = list;
     if (list.length >= questions.length) {
-      const sc = list.filter((a, i) => a !== null && a === questions[i].correct).length;
-      setScore(sc);
-      finish(sc);
+      finish(list);
     } else {
       setQIndex(list.length);
       setRemaining(TIME_PER_Q);
@@ -139,20 +138,24 @@ export default function DuelPage() {
     }
   }
 
-  async function finish(sc: number) {
+  async function finish(answers: number[]) {
     setPhase("finishing");
     try {
       const res = await fetch("/api/duel/finish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, score: sc }),
+        body: JSON.stringify({ code, answers }),
       });
       const data = await res.json();
       if (!data.ok) {
-        setError(data.error ?? "Natija saqlanmadi");
+        if (res.status === 409) setError(data.error ?? "Siz bu duelni allaqachon yakunlagansiz");
+        else if (res.status === 403) setError(data.error ?? "Bu duel sizga tegishli emas");
+        else setError(data.error ?? "Natija saqlanmadi");
         setPhase("done");
         return;
       }
+      setScore(data.score ?? 0);
+      setTotal(data.total ?? questions.length);
       setWinnerId(data.winnerId ?? null);
       setBalance(Number(data.balance ?? 0));
       setPhase("done");
@@ -168,6 +171,8 @@ export default function DuelPage() {
     setCode("");
     setJoinCode("");
     setQuestions([]);
+    setScore(0);
+    setTotal(0);
     setWinnerId(null);
     setBalance(null);
   }
@@ -308,7 +313,7 @@ export default function DuelPage() {
                   : "Bu safar yutqazding"}
             </h2>
             <p className="text-[#64748B] font-semibold mb-3">
-              Balling: {score} / {questions.length}
+              Balling: {score} / {total}
               {winnerId === null && " · Raqib tugatgach g'olib aniqlanadi (teng bo'lsa — durang)"}
             </p>
             <div className="flex items-center justify-center gap-2 font-extrabold text-lg mb-1">

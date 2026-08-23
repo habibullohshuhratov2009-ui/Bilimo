@@ -25,5 +25,9 @@ export async function POST(req: Request) {
   if (coins > 0) await addCoins(user.id, coins, "quiz_correct", attempt?.id);
   await track(user.id, "quiz_submit", { correct, total: list.length });
 
-  return NextResponse.json({ ok: true, correct, total: list.length, coins, balance: await balance(user.id) });
+  // Kalit FAQAT topshirilgandan keyin beriladi — razbor ko'rsatish uchun.
+  const review = list.map((qq: any) => ({ correct: Number(qq.correct), why: String(qq.why ?? "") }));
+  return NextResponse.json({
+    ok: true, correct, total: list.length, coins, review, balance: await balance(user.id),
+  });
 }

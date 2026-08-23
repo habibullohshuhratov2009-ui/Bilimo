@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sinf AI — maktab o'quvchilari uchun AI repetitor va tanga o'yini
 
-## Getting Started
+Oddiy maktab uchun ilova: o'quvchi savolini yozadi — AI **o'zbek tilida qadam-baqadam**
+tushuntiradi, keyin mini-test beradi. To'g'ri javob — **tanga**. Sinfdoshi bilan **duel**
+o'ynaydi. O'qituvchi sinf kodini beradi, kunlik mavzu qo'yadi va kim qanday ishlayotganini ko'radi.
 
-First, run the development server:
+## Nega bu kerak
+45 daqiqalik darsni 30 o'quvchiga bo'lsak — bitta bolaga 1,5 daqiqa qoladi.
+Repetitorga hamma ham pul to'lay olmaydi. Sinf AI — har bolaga alohida sabrli ustoz,
+telefonda, bepul, o'zbek tilida.
 
+## Ishga tushirish
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local        # ANTHROPIC_API_KEY va DATABASE_URL to'ldiriladi
+createdb sinfai
+psql -d sinfai -f src/lib/db/schema.sql
+npm run dev                        # http://localhost:3000
+```
+Demo ma'lumot: `DATABASE_URL=... node scripts/seed.mjs` → sinf kodi **DEMO23**,
+o'qituvchi `UstozAziza`, o'quvchilar Diyor/Malika/Javohir/Nilufar/Sardor (PIN 1234).
+
+## Tekshirish
+```bash
+npx tsc --noEmit                 # tiplar
+npm run build                    # yig'ilish
+bash scripts/e2e-test.sh         # to'liq yo'l: o'qituvchi -> o'quvchi -> AI -> test -> duel -> hisobot
+bash scripts/security-test.sh    # o'ziga hujum: SQLi, soxta cookie, rol chegarasi, brute-force, prompt injection
+node scripts/shots.mjs           # barcha ekranlarning skrinshotlari (Playwright)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Texnologiya
+Next.js 15 (App Router) · TypeScript · Tailwind · **PostgreSQL** · Anthropic Claude API · PWA.
+Deploy: Railway. Telefon va Windows uchun qobiqlar: `~/sinf-ai-wrap` (APK + NSIS installer).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Hujjatlar
+- [`ARCHITECTURE.md`](./ARCHITECTURE.md) — qatlamlar va ma'lumot oqimi (kim kimga qaraydi, ma'lumot qayerdan qayerga boradi)
+- [`API.md`](./API.md) — barcha endpointlar shartnomasi
+- [`SECURITY.md`](./SECURITY.md) — xavf va u qanday yopilgani
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Muhim yechimlar
+- **Tanga append-only jurnal** (`coin_ledger`): balans `SUM(delta)` bilan hisoblanadi — hech kim balansni "qo'lda" oshira olmaydi.
+- **Javob kaliti mijozga yuborilmaydi**: test savollari `correct` maydonisiz ketadi, kalit faqat topshirgandan keyin razbor uchun qaytadi.
+- **Ball serverda sanaladi** (test ham, duel ham) — brauzerdan kelgan raqamga ishonilmaydi.
+- **Prompt injection**: o'quvchi matni AI ga *ma'lumot* sifatida beriladi, ichidagi "ko'rsatmalarni unut" kabi buyruqlar bajarilmaydi.
+- **`events` jadvali** — keyin maktab va vazirlik uchun hisobot shu yerdan chiqadi.

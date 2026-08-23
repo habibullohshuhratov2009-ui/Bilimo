@@ -5,6 +5,7 @@ import { EXPLAIN_SYSTEM, QUIZ_SYSTEM } from "@/lib/ai/prompts";
 import { one } from "@/lib/db/pool";
 import { track } from "@/lib/db/queries/events";
 import { rateLimit } from "@/lib/security/ratelimit";
+import { publicQuestions, wrapUserInput } from "@/lib/ai/sanitize";
 export const maxDuration = 60;
 
 /** Test tuzish — mexanik ish, arzon modelga beriladi (egasi: "aniq bo'lgach pastroq modelga ol"). */
@@ -27,8 +28,8 @@ export async function POST(req: Request) {
   // Ikkalasi PARALLEL ketadi: test tuzish uchun tushuntirish shart emas, savolning o'zi yetadi.
   const question = String(text).slice(0, 2000);
   const [explain, quizRes] = await Promise.allSettled([
-    ask(EXPLAIN_SYSTEM, question),
-    ask(QUIZ_SYSTEM, `Savol/mavzu: ${question}`, 700, QUIZ_MODEL),
+    ask(EXPLAIN_SYSTEM, wrapUserInput(question)),
+    ask(QUIZ_SYSTEM, wrapUserInput(question), 700, QUIZ_MODEL),
   ]);
   if (explain.status === "rejected")
     return NextResponse.json({ ok: false, error: "AI hozir javob bera olmadi, qayta urining" }, { status: 502 });
@@ -52,5 +53,6 @@ export async function POST(req: Request) {
   }
 
   await track(user.id, "solve", { explanationId: row?.id, hasQuiz: !!quizId });
-  return NextResponse.json({ ok: true, explanation: ex.text, quizId, questions });
+  // Diqqat: savollar javob KALITISIZ ketadi.
+  return NextResponse.json({ ok: true, explanation: ex.text, quizId, questions: publicQuestions(questions as any[]) });
 }

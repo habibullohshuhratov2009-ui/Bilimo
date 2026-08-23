@@ -4,6 +4,7 @@ import { ask, parseQuiz } from "@/lib/ai/claude";
 import { DUEL_SYSTEM } from "@/lib/ai/prompts";
 import { one } from "@/lib/db/pool";
 import { track } from "@/lib/db/queries/events";
+import { publicQuestions } from "@/lib/ai/sanitize";
 import { rateLimit } from "@/lib/security/ratelimit";
 export const maxDuration = 60;
 
@@ -38,5 +39,5 @@ export async function POST(req: Request) {
     [code(), user.class_id, quiz!.id, user.id]);
 
   await track(user.id, "duel_create", { duelId: duel?.id, theme });
-  return NextResponse.json({ ok: true, code: duel?.code, quizId: quiz?.id, questions });
+  return NextResponse.json({ ok: true, code: duel?.code, quizId: quiz?.id, questions: publicQuestions(questions) });
 }

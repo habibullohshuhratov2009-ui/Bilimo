@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth/session";
 import { one, q } from "@/lib/db/pool";
 import { track } from "@/lib/db/queries/events";
+import { publicQuestions } from "@/lib/ai/sanitize";
 
 export async function POST(req: Request) {
   const user = await currentUser();
@@ -15,5 +16,5 @@ export async function POST(req: Request) {
   }
   const quiz = await one<{ questions: any }>(`SELECT questions FROM quizzes WHERE id = $1`, [duel.quiz_id]);
   await track(user.id, "duel_join", { duelId: duel.id });
-  return NextResponse.json({ ok: true, duelId: duel.id, quizId: duel.quiz_id, questions: quiz?.questions?.questions ?? [] });
+  return NextResponse.json({ ok: true, duelId: duel.id, quizId: duel.quiz_id, questions: publicQuestions(quiz?.questions?.questions ?? []) });
 }

@@ -7,7 +7,8 @@ import { rateLimit, clientIp } from "@/lib/security/ratelimit";
 import { addCoins } from "@/lib/db/queries/coins";
 
 const Body = z.object({
-  nickname: z.string().min(2).max(24),
+  nickname: z.string().min(2).max(24)
+    .regex(/^[A-Za-z0-9_\u0400-\u04FF]+$/, "Nikda faqat harf, raqam va _ bo'lishi mumkin"),
   pin: z.string().min(4).max(8).regex(/^\d+$/, "PIN faqat raqamlardan iborat")
     .refine((v) => !["0000", "1111", "1234", "12345", "123456"].includes(v), "Bunday PIN juda oson"),
   role: z.enum(["student", "teacher"]),
