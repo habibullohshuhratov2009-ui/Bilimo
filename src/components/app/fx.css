@@ -1,0 +1,209 @@
+/* ============================================================
+   Sinf AI — app motion layer (app sahifalari uchun)
+   Kuchli easing'lar + qisqa davomiylik (UI < 300ms),
+   bayram animatsiyalari uzunroq bo'lishi mumkin.
+   ============================================================ */
+:root {
+  --fx-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --fx-inout: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* --- Kirish: kartalar ketma-ket ko'tarilib chiqadi --- */
+@keyframes fx-rise {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.fx-rise {
+  opacity: 0;
+  animation: fx-rise 0.45s var(--fx-out) both;
+  animation-delay: var(--fx-delay, 0ms);
+}
+
+/* --- Fade-up: matn almashganda --- */
+@keyframes fx-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fx-fade-up { animation: fx-fade-up 0.3s var(--fx-out) both; }
+
+/* --- Pop: to'g'ri javob / natija --- */
+@keyframes fx-pop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+.fx-pop { animation: fx-pop 0.35s var(--fx-out); }
+
+/* --- Pop-in: bayram elementi (emoji, kubok) --- */
+@keyframes fx-pop-in {
+  from { opacity: 0; transform: scale(0.5); }
+  60%  { opacity: 1; transform: scale(1.15); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.fx-pop-in { display: inline-block; animation: fx-pop-in 0.5s var(--fx-out) both; }
+
+/* --- Shake: xato --- */
+@keyframes fx-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.fx-shake { animation: fx-shake 0.4s var(--fx-out); }
+
+/* --- Olov (streak) pulsatsiyasi --- */
+@keyframes fx-flame {
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  50%      { transform: scale(1.18) rotate(3deg); }
+}
+.fx-flame {
+  display: inline-block;
+  transform-origin: 50% 85%;
+  animation: fx-flame 1.6s ease-in-out infinite;
+}
+
+/* --- Tanga 3D aylanishi (aylanadi, biroz dam oladi) --- */
+@keyframes fx-coin-spin {
+  0%   { transform: rotateY(0deg); }
+  45%  { transform: rotateY(360deg); }
+  100% { transform: rotateY(360deg); }
+}
+.fx-coin-spin {
+  display: inline-flex;
+  animation: fx-coin-spin 3.2s var(--fx-inout) infinite;
+}
+
+/* --- Medal tebranishi --- */
+@keyframes fx-rock {
+  0%, 100% { transform: rotate(-8deg); }
+  50%      { transform: rotate(8deg); }
+}
+.fx-medal {
+  display: inline-block;
+  animation: fx-rock 2.2s ease-in-out infinite;
+  animation-delay: var(--fx-delay, 0ms);
+}
+
+/* --- Bosilish sezgisi (variant tugmalari) --- */
+.fx-opt {
+  transition:
+    transform 140ms var(--fx-out),
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease,
+    opacity 200ms ease;
+}
+.fx-opt:active:not(:disabled) { transform: scale(0.97); }
+
+.fx-press { transition: transform 140ms var(--fx-out); }
+.fx-press:active:not(:disabled) { transform: scale(0.96); }
+
+/* --- Taymer: oxirgi soniyalar pulsatsiyasi --- */
+@keyframes fx-urgent {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+.fx-urgent { animation: fx-urgent 0.5s ease-in-out infinite; }
+
+/* --- Savol kartasi slaydi --- */
+@keyframes fx-slide {
+  from { opacity: 0; transform: translateX(48px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.fx-slide { animation: fx-slide 0.3s var(--fx-out) both; }
+
+/* --- AI o'ylayapti: nuqtalar --- */
+@keyframes fx-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+  30%           { transform: translateY(-6px); opacity: 1; }
+}
+.fx-dot {
+  display: inline-block;
+  width: 8px; height: 8px; border-radius: 9999px;
+  background: #4f46e5;
+  animation: fx-dot 1.2s ease-in-out infinite;
+  animation-delay: var(--fx-delay, 0ms);
+}
+
+/* --- Tanga tepadan tushishi --- */
+@keyframes fx-coin-drop {
+  from { opacity: 0; transform: translateY(-48px) rotateY(0deg); }
+  60%  { opacity: 1; }
+  to   { opacity: 1; transform: translateY(0) rotateY(720deg); }
+}
+.fx-coin-drop { display: inline-flex; animation: fx-coin-drop 0.7s var(--fx-out) both; }
+
+/* --- Konfetti / tanga yomg'iri --- */
+@keyframes fx-fall {
+  from { transform: translate3d(0, -10vh, 0) rotate(0deg); }
+  to   { transform: translate3d(var(--fx-sway, 0px), 108vh, 0) rotate(var(--fx-rot, 540deg)); }
+}
+.fx-fall {
+  position: fixed;
+  top: 0;
+  left: var(--fx-x, 50%);
+  z-index: 60;
+  pointer-events: none;
+  will-change: transform;
+  animation: fx-fall var(--fx-dur, 2.4s) linear var(--fx-delay, 0ms) both;
+}
+
+/* --- Toast bildirishnoma --- */
+@keyframes fx-toast {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.fx-toast { animation: fx-toast 0.25s var(--fx-out) both; }
+
+/* --- Maskot --- */
+@keyframes fx-wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }
+  50% { transform: rotate(-6deg); }
+  75% { transform: rotate(14deg); }
+}
+.fx-wave-arm {
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
+  animation: fx-wave 1.6s ease-in-out infinite;
+}
+@keyframes fx-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(0.12); }
+}
+.fx-blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fx-blink 4s infinite;
+}
+@keyframes fx-antenna {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.35); }
+}
+.fx-antenna {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fx-antenna 1s ease-in-out infinite;
+}
+@keyframes fx-mascot-jump {
+  0%, 100% { transform: translateY(0); }
+  30%      { transform: translateY(-10px) rotate(-3deg); }
+  60%      { transform: translateY(0); }
+  80%      { transform: translateY(-4px); }
+}
+.fx-mascot-jump { animation: fx-mascot-jump 0.9s var(--fx-out) infinite; }
+
+/* --- Reduced motion: harakat yo'q, faqat yumshoq fade --- */
+@keyframes fx-fade-only { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .fx-rise, .fx-fade-up, .fx-slide, .fx-pop-in, .fx-coin-drop, .fx-toast {
+    animation: fx-fade-only 0.15s ease both;
+  }
+  .fx-pop, .fx-shake, .fx-flame, .fx-coin-spin, .fx-medal, .fx-urgent,
+  .fx-dot, .fx-wave-arm, .fx-antenna, .fx-mascot-jump, .fx-blink {
+    animation: none;
+  }
+  .fx-fall { display: none; }
+  .fx-opt:active:not(:disabled), .fx-press:active:not(:disabled) { transform: none; }
+}

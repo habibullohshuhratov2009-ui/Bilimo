@@ -2,34 +2,25 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Mascot from "@/components/ui/Mascot";
+import ChatDemo from "@/components/motion/ChatDemo";
+import FloatingCoins from "@/components/motion/FloatingCoins";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-function CoinLogo({ size = 40 }: { size?: number }) {
+function CoinIcon({ size = 22 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      aria-hidden="true"
-      className="shrink-0"
-    >
-      <circle cx="32" cy="32" r="30" fill="#FACC15" />
-      <circle cx="32" cy="32" r="24" fill="none" stroke="#CA8A04" strokeWidth="3" />
-      <text
-        x="32"
-        y="41"
-        textAnchor="middle"
-        fontSize="22"
-        fontWeight="800"
-        fill="#713F12"
-        fontFamily="Arial, sans-serif"
-      >
-        SA
-      </text>
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" className="inline-block shrink-0">
+      <circle cx="12" cy="12" r="11" fill="#FACC15" stroke="#CA8A04" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="7.5" fill="none" stroke="#CA8A04" strokeWidth="1.2" opacity="0.6" />
+      <path
+        d="M12 7.2l1.35 2.74 3.02.44-2.18 2.13.51 3.01L12 14.1l-2.7 1.42.51-3.01-2.18-2.13 3.02-.44L12 7.2z"
+        fill="#CA8A04"
+        opacity="0.85"
+      />
     </svg>
   );
 }
@@ -61,7 +52,6 @@ export default function Home() {
       if (choice.outcome === "accepted") setInstalled(true);
       setInstallEvent(null);
     } else {
-      // iOS Safari yoki prompt hali kelmagan brauzer
       setShowIosHint(true);
     }
   };
@@ -69,10 +59,10 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col bg-background text-foreground">
       {/* ===== HEADER ===== */}
-      <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/85 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+      <header className="sticky top-0 z-20 border-b border-indigo-100/70 bg-white/85 backdrop-blur">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-2.5">
           <div className="flex items-center gap-2">
-            <CoinLogo size={34} />
+            <Mascot mood="happy" size={38} animated={false} />
             <span className="text-lg font-extrabold tracking-tight">
               Sinf <span className="text-primary">AI</span>
             </span>
@@ -86,7 +76,7 @@ export default function Home() {
             </Link>
             <Link
               href="/kirish"
-              className="rounded-btn bg-primary px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary-dark"
+              className="btn-push rounded-btn grad-primary px-4 py-2 text-sm font-bold text-white shadow-[0_3px_0_#3730A3]"
             >
               Kirish
             </Link>
@@ -96,187 +86,185 @@ export default function Home() {
 
       <main className="flex-1">
         {/* ===== HERO ===== */}
-        <section className="relative overflow-hidden">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -top-24 right-[-10%] h-72 w-72 rounded-full bg-primary-soft blur-3xl"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute bottom-[-30%] left-[-10%] h-72 w-72 rounded-full bg-coin/20 blur-3xl"
-          />
-          <div className="relative mx-auto grid max-w-5xl gap-10 px-4 pb-14 pt-12 md:grid-cols-2 md:items-center md:pt-16">
-            <div className="animate-rise">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary">
-                🇺🇿 O&apos;zbek tilida AI repetitor
+        <section className="grad-hero relative overflow-hidden">
+          <FloatingCoins />
+          <div className="relative mx-auto grid max-w-5xl gap-12 px-4 pb-16 pt-10 md:grid-cols-2 md:items-center md:pt-14">
+            <div>
+              <span className="animate-pop d1 inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-white px-3 py-1 text-xs font-bold text-primary shadow-sm">
+                🇺🇿 O&apos;zbek tilidagi AI repetitor
               </span>
-              <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight md:text-5xl">
-                Har bir o&apos;quvchiga{" "}
-                <span className="text-primary">shaxsiy AI ustoz</span> 🎓
+              <h1 className="animate-rise d2 mt-4 text-[2.6rem] font-extrabold leading-[1.08] tracking-tight md:text-6xl">
+                O&apos;qish endi{" "}
+                <span className="bg-gradient-to-r from-primary via-violet-500 to-primary bg-clip-text text-transparent">
+                  o&apos;yin!
+                </span>
               </h1>
-              <p className="mt-4 max-w-md text-lg leading-relaxed text-muted">
-                Savolingni yoz — Sinf AI qadam-baqadam tushuntiradi, mini-test
-                beradi, to&apos;g&apos;ri javob uchun{" "}
-                <span className="font-bold text-coin-dark">tanga 🪙</span>{" "}
-                sovg&apos;a qiladi. Sinfdoshing bilan duel o&apos;ynab bilimingni
-                isbotla!
+              <p className="animate-rise d3 mt-4 max-w-md text-lg leading-relaxed text-muted">
+                Sinf AI savolingni qadam-baqadam tushuntiradi, to&apos;g&apos;ri
+                javob uchun <b className="text-coin-dark">tanga</b> beradi.
+                Sinfdoshing bilan 1x1 duel!
               </p>
 
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <div className="animate-rise d4 mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/kirish"
-                  className="flex h-14 items-center justify-center rounded-btn bg-primary px-8 text-base font-extrabold text-white shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 hover:bg-primary-dark"
+                  className="btn-push flex h-14 items-center justify-center rounded-btn grad-primary px-8 text-base font-extrabold text-white shadow-[0_5px_0_#3730A3,0_14px_30px_-8px_var(--primary-glow)]"
                 >
                   🚀 Boshlash
                 </Link>
                 <button
                   type="button"
                   onClick={handleInstall}
-                  className="flex h-14 items-center justify-center rounded-btn border-2 border-primary bg-white px-8 text-base font-extrabold text-primary transition-all hover:-translate-y-0.5 hover:bg-primary-soft"
+                  className="btn-push flex h-14 items-center justify-center rounded-btn border-2 border-primary bg-white px-8 text-base font-extrabold text-primary shadow-[0_5px_0_#c7d2fe] hover:bg-primary-soft"
                 >
                   {installed ? "✅ O'rnatildi" : "📲 O'rnatish"}
                 </button>
-                <Link
-                  href="/kirish?role=teacher"
-                  className="flex h-14 items-center justify-center rounded-btn bg-foreground px-8 text-base font-extrabold text-white transition-all hover:-translate-y-0.5 hover:bg-slate-700"
-                >
-                  👩‍🏫 O&apos;qituvchiman
-                </Link>
               </div>
 
               {showIosHint && !installEvent && !installed && (
-                <p className="mt-3 rounded-card bg-primary-soft px-4 py-3 text-sm font-medium text-primary">
-                  📱 iPhone&apos;da: <b>Ulashish</b> tugmasi →{" "}
-                  <b>&laquo;Bosh ekranga qo&apos;shish&raquo;</b> ni tanlang.
-                  Android Chrome&apos;da menyudan <b>&laquo;Ilovani
-                  o&apos;rnatish&raquo;</b>.
+                <p className="animate-pop mt-3 rounded-card bg-white px-4 py-3 text-sm font-medium text-primary shadow-sm">
+                  📱 iPhone&apos;da: <b>Ulashish</b> →{" "}
+                  <b>&laquo;Bosh ekranga qo&apos;shish&raquo;</b>.
+                  Android Chrome&apos;da menyudan{" "}
+                  <b>&laquo;Ilovani o&apos;rnatish&raquo;</b>.
                 </p>
               )}
             </div>
 
-            {/* Telefon mockup — jonli suhbat namunasi */}
-            <div className="animate-rise mx-auto w-full max-w-sm [animation-delay:150ms]">
-              <div className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-xl shadow-slate-200">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-2">
-                    <CoinLogo size={28} />
-                    <span className="text-sm font-bold">Sinf AI</span>
-                  </div>
-                  <span className="flex items-center gap-1 rounded-full bg-coin/20 px-2.5 py-1 text-xs font-extrabold text-coin-dark">
-                    🪙 145
-                  </span>
-                </div>
-                <div className="space-y-3 pt-4 text-sm">
-                  <div className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 font-medium text-white">
-                    Kasrlarni qanday qo&apos;shaman? 3/4 + 1/6 = ?
-                  </div>
-                  <div className="w-fit max-w-[90%] rounded-2xl rounded-bl-md bg-slate-100 px-4 py-2.5">
-                    <p className="font-bold text-primary">Qadam 1️⃣</p>
-                    <p className="mt-1">
-                      Maxrajlarni tenglashtiramiz: 4 va 6 ning eng kichik umumiy
-                      karralisi — <b>12</b> ...
-                    </p>
-                  </div>
-                  <div className="w-fit max-w-[90%] rounded-2xl rounded-bl-md bg-primary-soft px-4 py-2.5">
-                    <p className="font-bold">✍️ Mini-test:</p>
-                    <p className="mt-1">3/4 + 1/6 nechaga teng?</p>
-                    <div className="mt-2 grid grid-cols-2 gap-1.5 text-center text-xs font-bold">
-                      <span className="rounded-lg bg-white px-2 py-1.5">4/10</span>
-                      <span className="rounded-lg bg-green-500 px-2 py-1.5 text-white">
-                        11/12 ✓
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs font-bold text-coin-dark">
-                    <span className="animate-coin inline-block text-lg">🪙</span>
-                    +5 tanga yutding!
-                  </div>
-                </div>
+            {/* Telefon maketi + orqasidan mo'ralayotgan maskot */}
+            <div className="animate-rise d5 relative mx-auto w-full max-w-sm">
+              <div className="absolute -top-12 right-4 z-0">
+                <Mascot mood="happy" size={96} />
+              </div>
+              <div className="relative z-10">
+                <ChatDemo />
               </div>
             </div>
           </div>
         </section>
 
-        {/* ===== 3 AFZALLIK ===== */}
-        <section className="mx-auto max-w-5xl px-4 py-12">
-          <h2 className="text-center text-2xl font-extrabold md:text-3xl">
-            Nega o&apos;quvchilar Sinf AI ni yaxshi ko&apos;radi?
-          </h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
+        {/* ===== 3 QADAM ===== */}
+        <section className="mx-auto max-w-5xl px-4 py-14">
+          <div className="text-center">
+            <h2 className="text-2xl font-extrabold md:text-4xl">
+              3 qadamda chempion bo&apos;l
+            </h2>
+            <p className="mx-auto mt-2 max-w-md text-muted">
+              Ro&apos;yxatdan o&apos;tish 30 soniya: taxallus + PIN. Telefon
+              raqami ham shart emas.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
             {[
               {
-                emoji: "🧠",
-                title: "Qadam-baqadam tushuntiradi",
-                text: "Tayyor javob bermaydi — xuddi ustozdek, o'zbek tilida bosqichma-bosqich o'rgatadi. Tushunmasang, boshqacha usulda qayta tushuntiradi.",
+                n: "1",
+                title: "Savolingni yoz",
+                text: "Masala yoki tushunmagan mavzuni oddiy so'z bilan yozasan.",
+                mood: "think" as const,
+                bg: "bg-white",
               },
               {
-                emoji: "🪙",
-                title: "Bilim = tanga",
-                text: "Har to'g'ri javob +5 tanga, kunlik kirish +10. Tangalar reytingda ko'rinadi — o'qish o'yinga aylanadi!",
+                n: "2",
+                title: "AI tushuntiradi",
+                text: "Zumi o'zbek tilida qadam-baqadam yechib, mantiqni ko'rsatadi.",
+                mood: "happy" as const,
+                bg: "bg-primary-soft",
               },
               {
-                emoji: "⚔️",
-                title: "1x1 duel",
-                text: "Sinfdoshingni duelga chorla: bir xil savollar, kim tez va to'g'ri yechsa — +25 tanga va g'alaba!",
+                n: "3",
+                title: "Test yech, tanga yut",
+                text: "Mini-testda to'g'ri javob — tanga. Tangalar reytingga qo'shiladi!",
+                mood: "win" as const,
+                bg: "bg-[#fefce8]",
               },
-            ].map((f) => (
+            ].map((s) => (
               <div
-                key={f.title}
-                className="rounded-card border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+                key={s.n}
+                className={`card-lift relative rounded-card border border-indigo-100/60 ${s.bg} p-6 pt-8 shadow-toy`}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft text-2xl">
-                  {f.emoji}
-                </div>
-                <h3 className="mt-4 text-lg font-extrabold">{f.title}</h3>
-                <p className="mt-2 leading-relaxed text-muted">{f.text}</p>
+                <span className="absolute -top-4 left-6 flex h-9 w-9 items-center justify-center rounded-full grad-coin text-base font-extrabold text-coin-deep shadow-md">
+                  {s.n}
+                </span>
+                <Mascot mood={s.mood} size={72} />
+                <h3 className="mt-3 text-lg font-extrabold">{s.title}</h3>
+                <p className="mt-2 leading-relaxed text-muted">{s.text}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ===== QANDAY ISHLAYDI ===== */}
-        <section className="bg-white py-12">
-          <div className="mx-auto max-w-5xl px-4">
-            <h2 className="text-center text-2xl font-extrabold md:text-3xl">
-              Qanday ishlaydi? 3 qadam
+        {/* ===== TANGA + DUEL ===== */}
+        <section className="relative overflow-hidden bg-white py-14">
+          <FloatingCoins className="opacity-60" />
+          <div className="relative mx-auto max-w-5xl px-4">
+            <h2 className="text-center text-2xl font-extrabold md:text-4xl">
+              Bilim = tanga. Tanga = g&apos;alaba.
             </h2>
-            <div className="mt-8 grid gap-6 md:grid-cols-3">
-              {[
-                {
-                  n: "1",
-                  emoji: "✍️",
-                  title: "Savolingni yoz",
-                  text: "Masala, qoida yoki tushunmagan mavzuingni oddiy so'z bilan yozasan — rasm shart emas.",
-                },
-                {
-                  n: "2",
-                  emoji: "🤖",
-                  title: "AI tushuntiradi",
-                  text: "Sinf AI o'zbek tilida qadam-baqadam yechib beradi va mantiqni ko'rsatadi.",
-                },
-                {
-                  n: "3",
-                  emoji: "🏆",
-                  title: "Test yech, tanga yut",
-                  text: "Mavzu bo'yicha mini-test: to'g'ri javob — tanga, tangalar — sinf reytingi va duel!",
-                },
-              ].map((s) => (
-                <div key={s.n} className="relative rounded-card bg-background p-6">
-                  <span className="absolute -top-4 left-6 flex h-9 w-9 items-center justify-center rounded-full bg-coin text-base font-extrabold text-yellow-900 shadow">
-                    {s.n}
+            <div className="mt-10 grid gap-5 md:grid-cols-2">
+              {/* Tanga iqtisodiyoti */}
+              <div className="card-lift rounded-card border border-yellow-200/70 bg-gradient-to-b from-[#fefce8] to-white p-7 shadow-toy">
+                <div className="flex items-center gap-3">
+                  <span className="animate-coin inline-block">
+                    <CoinIcon size={44} />
                   </span>
-                  <div className="pt-3 text-3xl">{s.emoji}</div>
-                  <h3 className="mt-2 text-lg font-extrabold">{s.title}</h3>
-                  <p className="mt-2 leading-relaxed text-muted">{s.text}</p>
+                  <h3 className="text-xl font-extrabold">Tangalar qanday yig&apos;iladi?</h3>
                 </div>
-              ))}
+                <ul className="mt-5 space-y-3 font-semibold">
+                  {[
+                    { t: "To'g'ri javob", c: "+5" },
+                    { t: "Kunlik kirish", c: "+10" },
+                    { t: "Duel g'alabasi", c: "+25" },
+                  ].map((r) => (
+                    <li
+                      key={r.t}
+                      className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm"
+                    >
+                      <span>{r.t}</span>
+                      <span className="flex items-center gap-1.5 font-extrabold text-coin-dark">
+                        {r.c} <CoinIcon size={18} />
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-4 text-sm text-muted">
+                  Tangalar sinf reytingida ko&apos;rinadi. Kim ko&apos;p yig&apos;sa,
+                  o&apos;sha chempion!
+                </p>
+              </div>
+
+              {/* Duel */}
+              <div className="card-lift relative overflow-hidden rounded-card grad-panel p-7 text-white shadow-toy">
+                <h3 className="text-xl font-extrabold">1x1 duel</h3>
+                <p className="mt-2 text-white/85">
+                  Sinfdoshingni chorla: bir xil 5 savol, kim tez va to&apos;g&apos;ri
+                  yechsa, g&apos;alaba uniki!
+                </p>
+                <div className="mt-6 flex items-center justify-center gap-4">
+                  <div className="flex flex-col items-center rounded-card bg-white/12 px-5 py-4 backdrop-blur">
+                    <Mascot mood="win" size={76} />
+                    <span className="mt-1 text-sm font-extrabold">Aziza</span>
+                    <span className="text-xs text-white/75">5/5 ✓</span>
+                  </div>
+                  <span className="animate-pulse-soft text-3xl font-extrabold text-coin">
+                    VS
+                  </span>
+                  <div className="flex flex-col items-center rounded-card bg-white/12 px-5 py-4 backdrop-blur">
+                    <Mascot mood="think" size={76} />
+                    <span className="mt-1 text-sm font-extrabold">Jasur</span>
+                    <span className="text-xs text-white/75">4/5</span>
+                  </div>
+                </div>
+                <p className="mt-5 flex items-center justify-center gap-1.5 text-sm font-extrabold text-coin">
+                  G&apos;olibga +25 <CoinIcon size={16} />
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* ===== O'QITUVCHI UCHUN ===== */}
-        <section className="mx-auto max-w-5xl px-4 py-12">
-          <div className="overflow-hidden rounded-card bg-primary px-6 py-10 text-white md:px-12">
+        <section className="mx-auto max-w-5xl px-4 py-14">
+          <div className="overflow-hidden rounded-card grad-panel px-6 py-10 text-white shadow-toy md:px-12">
             <div className="grid gap-8 md:grid-cols-2 md:items-center">
               <div>
                 <span className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-bold">
@@ -289,28 +277,28 @@ export default function Home() {
                   <li className="flex gap-2.5">
                     <span>🔑</span>
                     <span>
-                      <b>Sinf kodi</b> yarating — o&apos;quvchilar shu kod bilan
-                      qo&apos;shiladi, hech qanday hujjat kerak emas.
+                      <b>Sinf kodi</b> yarating: o&apos;quvchilar shu kod bilan
+                      qo&apos;shiladi, hujjat kerak emas.
                     </span>
                   </li>
                   <li className="flex gap-2.5">
                     <span>📚</span>
                     <span>
-                      <b>Kunlik mavzu</b> qo&apos;ying — AI aynan shu mavzu
+                      <b>Kunlik mavzu</b> qo&apos;ying: AI aynan shu mavzu
                       bo&apos;yicha tushuntiradi va test tuzadi.
                     </span>
                   </li>
                   <li className="flex gap-2.5">
                     <span>📊</span>
                     <span>
-                      <b>Progress paneli</b> — kim nechta savol yechdi, kimga
-                      yordam kerak: hammasi bitta jadvalda.
+                      <b>Progress paneli</b>: kim nechta savol yechdi, kimga
+                      yordam kerak, hammasi bitta jadvalda.
                     </span>
                   </li>
                 </ul>
                 <Link
                   href="/kirish?role=teacher"
-                  className="mt-6 inline-flex h-13 items-center justify-center rounded-btn bg-coin px-8 py-3.5 text-base font-extrabold text-yellow-900 shadow-lg transition-all hover:-translate-y-0.5 hover:brightness-105"
+                  className="btn-push mt-6 inline-flex items-center justify-center rounded-btn grad-coin px-8 py-3.5 text-base font-extrabold text-coin-deep shadow-[0_4px_0_#A16207]"
                 >
                   O&apos;qituvchi sifatida boshlash →
                 </Link>
@@ -319,25 +307,25 @@ export default function Home() {
                 <p className="text-sm font-bold text-white/70">5-A sinf · Matematika</p>
                 <div className="mt-3 space-y-2 text-sm">
                   {[
-                    { name: "Aziza", coins: 230, ok: "18/20" },
-                    { name: "Jasur", coins: 195, ok: "15/19" },
-                    { name: "Malika", coins: 160, ok: "12/16" },
+                    { name: "Aziza", coins: 230, ok: "18/20", medal: "🥇" },
+                    { name: "Jasur", coins: 195, ok: "15/19", medal: "🥈" },
+                    { name: "Malika", coins: 160, ok: "12/16", medal: "🥉" },
                   ].map((r, i) => (
                     <div
                       key={r.name}
-                      className="flex items-center justify-between rounded-xl bg-white/10 px-4 py-2.5"
+                      className={`animate-pop flex items-center justify-between rounded-xl bg-white/10 px-4 py-2.5 ${["d3", "d5", "d7"][i]}`}
                     >
                       <span className="font-bold">
-                        {["🥇", "🥈", "🥉"][i]} {r.name}
+                        {r.medal} {r.name}
                       </span>
-                      <span className="text-white/80">
-                        ✅ {r.ok} · 🪙 {r.coins}
+                      <span className="flex items-center gap-1 text-white/85">
+                        ✅ {r.ok} · {r.coins} <CoinIcon size={14} />
                       </span>
                     </div>
                   ))}
                 </div>
                 <p className="mt-3 text-xs text-white/60">
-                  * Namuna ko&apos;rinish — panel jonli yangilanadi
+                  * Namuna ko&apos;rinish, panel jonli yangilanadi
                 </p>
               </div>
             </div>
@@ -345,38 +333,43 @@ export default function Home() {
         </section>
 
         {/* ===== YAKUNIY CTA ===== */}
-        <section className="mx-auto max-w-3xl px-4 pb-16 pt-4 text-center">
-          <div className="animate-coin mx-auto w-fit text-5xl">🪙</div>
-          <h2 className="mt-3 text-2xl font-extrabold md:text-3xl">
-            Bugun birinchi tangangni yut!
-          </h2>
-          <p className="mx-auto mt-2 max-w-md text-muted">
-            Ro&apos;yxatdan o&apos;tish 30 soniya: taxallus + PIN. Telefon raqami
-            ham shart emas.
-          </p>
-          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link
-              href="/kirish"
-              className="flex h-14 items-center justify-center rounded-btn bg-primary px-10 text-base font-extrabold text-white shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 hover:bg-primary-dark"
-            >
-              🚀 Boshlash — bepul
-            </Link>
-            <button
-              type="button"
-              onClick={handleInstall}
-              className="flex h-14 items-center justify-center rounded-btn border-2 border-primary bg-white px-10 text-base font-extrabold text-primary transition-all hover:-translate-y-0.5 hover:bg-primary-soft"
-            >
-              {installed ? "✅ O'rnatildi" : "📲 Telefonga o'rnatish"}
-            </button>
+        <section className="relative mx-auto max-w-3xl overflow-hidden px-4 pb-20 pt-6 text-center">
+          <FloatingCoins className="opacity-70" />
+          <div className="relative">
+            <div className="mx-auto w-fit">
+              <Mascot mood="win" size={130} />
+            </div>
+            <h2 className="mt-4 text-2xl font-extrabold md:text-4xl">
+              Bugun birinchi tangangni yut!
+            </h2>
+            <p className="mx-auto mt-2 max-w-md text-muted">
+              Zumi seni kutyapti. Savol ber, tushunib ol, tanga yig&apos;,
+              chempion bo&apos;l!
+            </p>
+            <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+              <Link
+                href="/kirish"
+                className="btn-push flex h-14 items-center justify-center rounded-btn grad-primary px-10 text-base font-extrabold text-white shadow-[0_5px_0_#3730A3,0_14px_30px_-8px_var(--primary-glow)]"
+              >
+                🚀 Boshlash
+              </Link>
+              <button
+                type="button"
+                onClick={handleInstall}
+                className="btn-push flex h-14 items-center justify-center rounded-btn border-2 border-primary bg-white px-10 text-base font-extrabold text-primary shadow-[0_5px_0_#c7d2fe] hover:bg-primary-soft"
+              >
+                {installed ? "✅ O'rnatildi" : "📲 O'rnatish"}
+              </button>
+            </div>
           </div>
         </section>
       </main>
 
       {/* ===== FOOTER ===== */}
-      <footer className="border-t border-slate-200 bg-white">
+      <footer className="border-t border-indigo-100 bg-white">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 py-8 text-center text-sm text-muted sm:flex-row sm:justify-between sm:text-left">
           <div className="flex items-center gap-2">
-            <CoinLogo size={24} />
+            <Mascot mood="happy" size={28} animated={false} />
             <span className="font-bold text-foreground">Sinf AI</span>
             <span>· AI bilan o&apos;qish o&apos;yinga aylanadi</span>
           </div>

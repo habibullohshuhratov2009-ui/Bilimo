@@ -1,11 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Coin from "@/components/ui/Coin";
+import { copyText } from "@/components/ui/CopyButton";
 import CopyButton from "@/components/ui/CopyButton";
+import CountUp from "@/components/app/CountUp";
+import Toast from "@/components/app/Toast";
+import "@/components/app/fx.css";
 import Input from "@/components/ui/Input";
 import Spinner from "@/components/ui/Spinner";
 
@@ -25,6 +29,8 @@ type ClassData = {
   topic: { title: string; subject: string | null } | null;
 };
 
+const delay = (ms: number) => ({ "--fx-delay": `${ms}ms` }) as CSSProperties;
+
 export default function UstozPage() {
   const router = useRouter();
   const [data, setData] = useState<ClassData | null>(null);
@@ -34,6 +40,13 @@ export default function UstozPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [formError, setFormError] = useState("");
+  const [codeCopied, setCodeCopied] = useState(false);
+
+  async function copyClassCode(code: string) {
+    await copyText(code);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 2200);
+  }
 
   const load = useCallback(async () => {
     try {
@@ -116,7 +129,7 @@ export default function UstozPage() {
   return (
     <main className="min-h-dvh bg-[#F8FAFC] text-[#0F172A] px-4 py-6">
       <div className="max-w-md mx-auto flex flex-col gap-4">
-        <header className="flex items-center justify-between">
+        <header className="fx-rise flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold text-[#64748B]">👩‍🏫 O'qituvchi paneli</p>
             <h1 className="text-2xl font-extrabold">{data.class.name}</h1>
@@ -126,13 +139,17 @@ export default function UstozPage() {
           </button>
         </header>
 
-        <Card className="p-5 text-center bg-gradient-to-br from-[#4F46E5] to-[#6D28D9] text-white border-0">
+        <Card className="fx-rise p-5 text-center bg-gradient-to-br from-[#4F46E5] to-[#6D28D9] text-white border-0" style={delay(60)}>
           <p className="text-indigo-200 text-sm font-semibold mb-2">
             Sinf kodi — o'quvchilar shu kod bilan qo'shiladi:
           </p>
-          <div className="text-4xl font-extrabold tracking-[0.25em] bg-white/15 rounded-2xl py-4 mb-3 select-all">
+          <button
+            onClick={() => copyClassCode(data.class.code)}
+            title="Bosib nusxalash"
+            className="fx-press w-full text-5xl font-extrabold tracking-[0.25em] bg-white/15 rounded-2xl py-4 mb-3 select-all hover:bg-white/20 transition-colors"
+          >
             {data.class.code}
-          </div>
+          </button>
           <CopyButton
             text={data.class.code}
             label="Kodni nusxalash 📋"
@@ -147,16 +164,21 @@ export default function UstozPage() {
               ["📝", totalAttempts, "urinish"],
               ["✅", avgCorrect, "o'rtacha to'g'ri"],
             ] as [string, number, string][]
-          ).map(([emoji, num, label]) => (
-            <Card key={label} className="text-center py-4 px-2">
+          ).map(([emoji, num, label], i) => (
+            <Card key={label} className="fx-rise text-center py-4 px-2" style={delay(120 + i * 60)}>
               <div className="text-xl">{emoji}</div>
-              <div className="text-2xl font-extrabold tabular-nums">{num}</div>
+              <CountUp
+                value={num}
+                duration={1000}
+                decimals={Number.isInteger(num) ? 0 : 1}
+                className="block text-2xl font-extrabold"
+              />
               <div className="text-[11px] font-semibold text-[#64748B]">{label}</div>
             </Card>
           ))}
         </div>
 
-        <Card className="p-5">
+        <Card className="fx-rise p-5" style={delay(240)}>
           <h2 className="font-extrabold text-lg mb-1">📚 Bugungi mavzu</h2>
           <p className="text-sm text-[#64748B] mb-3">
             Hozirgi:{" "}
@@ -181,7 +203,7 @@ export default function UstozPage() {
               onChange={(e) => setSubject(e.target.value)}
             />
             {formError && (
-              <div className="rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold">
+              <div key={formError} className="fx-shake rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold">
                 ⚠️ {formError}
               </div>
             )}
@@ -196,7 +218,7 @@ export default function UstozPage() {
           </div>
         </Card>
 
-        <Card className="p-4">
+        <Card className="fx-rise p-4" style={delay(300)}>
           <h2 className="font-extrabold text-lg mb-3 px-1">🧑‍🎓 O'quvchilar</h2>
           {students.length === 0 ? (
             <p className="text-sm text-[#64748B] px-1 pb-2">
@@ -217,9 +239,13 @@ export default function UstozPage() {
                 </thead>
                 <tbody>
                   {students.map((s, i) => (
-                    <tr key={s.nickname} className={i % 2 ? "bg-slate-50" : ""}>
+                    <tr
+                      key={s.nickname}
+                      className={`fx-rise ${i % 2 ? "bg-slate-50" : ""}`}
+                      style={delay(360 + Math.min(i * 45, 540))}
+                    >
                       <td className="px-2 py-2.5 font-bold text-[#94A3B8]">
-                        {i < 3 ? ["🥇", "🥈", "🥉"][i] : i + 1}
+                        {i < 3 ? <span className="fx-medal" style={delay(i * 260)}>{["🥇", "🥈", "🥉"][i]}</span> : i + 1}
                       </td>
                       <td className="px-2 py-2.5 font-bold">{s.nickname}</td>
                       <td className="px-2 py-2.5 text-right font-extrabold tabular-nums">
@@ -240,6 +266,7 @@ export default function UstozPage() {
           )}
         </Card>
       </div>
+      <Toast show={codeCopied}>✓ Sinf kodi nusxalandi</Toast>
     </main>
   );
 }

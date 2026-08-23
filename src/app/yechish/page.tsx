@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Coin from "@/components/ui/Coin";
+import Confetti from "@/components/app/Confetti";
+import CountUp from "@/components/app/CountUp";
+import "@/components/app/fx.css";
 
 type Question = { q: string; options: string[] };
 type ReviewItem = { correct: number; why: string };
@@ -13,6 +16,8 @@ type SolveResp = { ok: boolean; error?: string; explanation?: string; quizId?: n
 type SubmitResp = { ok: boolean; error?: string; correct: number; total: number; coins: number; balance: number; review?: ReviewItem[] };
 
 type Phase = "input" | "loading" | "result" | "checked";
+
+const delay = (ms: number) => ({ "--fx-delay": `${ms}ms` }) as CSSProperties;
 
 const WAIT_MSGS = [
   "AI masalani o'qiyapti… 👀",
@@ -135,7 +140,7 @@ export default function YechishPage() {
         </header>
 
         {phase === "input" && (
-          <Card className="p-5 flex flex-col gap-3">
+          <Card className="fx-rise p-5 flex flex-col gap-3">
             <label className="block">
               <span className="block text-sm font-semibold text-[#334155] mb-1.5">
                 Savolingni yoz yoki masalani ko'chir
@@ -150,7 +155,7 @@ export default function YechishPage() {
               />
             </label>
             {error && (
-              <div className="rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold">
+              <div key={error} className="fx-shake rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold">
                 ⚠️ {error}
               </div>
             )}
@@ -161,17 +166,22 @@ export default function YechishPage() {
         )}
 
         {phase === "loading" && (
-          <Card className="p-6">
+          <Card className="fx-rise p-6">
             <div className="text-center mb-5">
               <div className="text-5xl animate-bounce">🤖</div>
-              <p className="font-bold text-[#4F46E5] mt-3">{WAIT_MSGS[waitIdx]}</p>
+              <p key={waitIdx} className="fx-fade-up font-bold text-[#4F46E5] mt-3">
+                {WAIT_MSGS[waitIdx]}
+              </p>
+              <div className="flex items-center justify-center gap-1.5 mt-3" aria-hidden>
+                <span className="fx-dot" />
+                <span className="fx-dot" style={delay(150)} />
+                <span className="fx-dot" style={delay(300)} />
+              </div>
             </div>
             <div className="flex flex-col gap-2.5 animate-pulse">
-              <div className="h-4 bg-slate-200 rounded-full w-full" />
-              <div className="h-4 bg-slate-200 rounded-full w-11/12" />
-              <div className="h-4 bg-slate-200 rounded-full w-4/5" />
-              <div className="h-4 bg-slate-200 rounded-full w-full" />
-              <div className="h-4 bg-slate-200 rounded-full w-2/3" />
+              {["w-full", "w-11/12", "w-4/5", "w-full", "w-2/3"].map((w, i) => (
+                <div key={i} className={`fx-rise h-4 bg-slate-200 rounded-full ${w}`} style={delay(i * 70)} />
+              ))}
             </div>
           </Card>
         )}
@@ -179,18 +189,22 @@ export default function YechishPage() {
         {(phase === "result" || phase === "checked") && (
           <>
             {phase === "checked" && result && (
-              <Card className="text-center p-6 bg-gradient-to-br from-[#4F46E5] to-[#6D28D9] text-white border-0">
+              <Card className="fx-rise text-center p-6 bg-gradient-to-br from-[#4F46E5] to-[#6D28D9] text-white border-0">
+                {result.correct === result.total && <Confetti />}
                 <div className="text-5xl mb-2">
-                  {result.correct === result.total ? "🎉" : result.correct > result.total / 2 ? "👏" : "💪"}
+                  <span className="fx-pop-in">
+                    {result.correct === result.total ? "🎉" : result.correct > result.total / 2 ? "👏" : "💪"}
+                  </span>
                 </div>
                 <p className="text-3xl font-extrabold">
                   {result.correct} / {result.total} to'g'ri
                 </p>
                 <p className="mt-2 flex items-center justify-center gap-1.5 text-lg font-bold text-[#FACC15]">
-                  <Coin size={22} /> +{result.coins} tanga
+                  <span className="fx-coin-drop"><Coin size={22} /></span> +
+                  <CountUp value={result.coins} duration={800} /> tanga
                 </p>
                 <p className="text-indigo-200 text-sm mt-1">
-                  Jami: {Number(result.balance)} tanga
+                  Jami: <CountUp value={Number(result.balance)} duration={1100} /> tanga
                 </p>
                 <Button variant="yellow" big onClick={reset} className="mt-4 w-full">
                   Yana bitta 🔄
@@ -198,12 +212,16 @@ export default function YechishPage() {
               </Card>
             )}
 
-            <Card className="p-5">
+            <Card className="fx-rise p-5" style={delay(60)}>
               <h2 className="font-extrabold text-lg mb-2">📖 Tushuntirish</h2>
               <div className="flex flex-col gap-2">
                 {explanation.split("\n").map((line, i) =>
                   line.trim() ? (
-                    <p key={i} className="text-[15px] leading-relaxed whitespace-pre-wrap">
+                    <p
+                      key={i}
+                      className="fx-rise text-[15px] leading-relaxed whitespace-pre-wrap"
+                      style={delay(120 + Math.min(i, 8) * 70)}
+                    >
                       {cleanLine(line)}
                     </p>
                   ) : null
@@ -212,7 +230,7 @@ export default function YechishPage() {
             </Card>
 
             {questions.length > 0 && (
-              <Card className="p-5">
+              <Card className="fx-rise p-5" style={delay(180)}>
                 <h2 className="font-extrabold text-lg mb-3">
                   📝 Mini-test {phase === "checked" ? "— natijalar" : "— o'zingni sina!"}
                 </h2>
@@ -227,11 +245,12 @@ export default function YechishPage() {
                           const picked = answers[qi] === oi;
                           let cls = "border-slate-200 bg-white hover:border-[#4F46E5]/50";
                           if (phase === "checked") {
-                            if (oi === review[qi]?.correct) cls = "border-[#16A34A] bg-green-50 text-[#16A34A] font-bold";
-                            else if (picked) cls = "border-[#DC2626] bg-red-50 text-[#DC2626]";
+                            if (oi === review[qi]?.correct)
+                              cls = "fx-pop border-[#16A34A] bg-green-50 text-[#16A34A] font-bold";
+                            else if (picked) cls = "fx-shake border-[#DC2626] bg-red-50 text-[#DC2626]";
                             else cls = "border-slate-200 bg-white opacity-60";
                           } else if (picked) {
-                            cls = "border-[#4F46E5] bg-indigo-50 font-bold";
+                            cls = "fx-pop border-[#4F46E5] bg-indigo-50 font-bold";
                           }
                           return (
                             <button
@@ -240,7 +259,7 @@ export default function YechishPage() {
                               onClick={() =>
                                 setAnswers((prev) => prev.map((a, i) => (i === qi ? oi : a)))
                               }
-                              className={`min-h-12 px-4 py-2.5 rounded-2xl border-2 text-left text-[15px] transition-colors ${cls}`}
+                              className={`fx-opt min-h-12 px-4 py-2.5 rounded-2xl border-2 text-left text-[15px] ${cls}`}
                             >
                               <span className="font-extrabold mr-2">{"ABCD"[oi]}.</span>
                               {opt}
@@ -250,7 +269,7 @@ export default function YechishPage() {
                         })}
                       </div>
                       {phase === "checked" && review[qi]?.why && (
-                        <p className="mt-2 text-sm text-[#64748B] bg-slate-50 rounded-2xl px-4 py-2.5">
+                        <p className="fx-fade-up mt-2 text-sm text-[#64748B] bg-slate-50 rounded-2xl px-4 py-2.5">
                           💡 {review[qi]?.why}
                         </p>
                       )}
@@ -258,7 +277,7 @@ export default function YechishPage() {
                   ))}
                 </div>
                 {error && (
-                  <div className="mt-4 rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold">
+                  <div key={error} className="fx-shake mt-4 rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold">
                     ⚠️ {error}
                   </div>
                 )}

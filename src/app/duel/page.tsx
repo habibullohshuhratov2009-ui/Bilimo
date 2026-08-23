@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
@@ -8,11 +8,16 @@ import Card from "@/components/ui/Card";
 import Coin from "@/components/ui/Coin";
 import CopyButton from "@/components/ui/CopyButton";
 import Spinner from "@/components/ui/Spinner";
+import Confetti from "@/components/app/Confetti";
+import CountUp from "@/components/app/CountUp";
+import "@/components/app/fx.css";
 
 type Question = { q: string; options: string[] };
 type Phase = "menu" | "creating" | "created" | "joining" | "play" | "finishing" | "done";
 
 const TIME_PER_Q = 15;
+
+const delay = (ms: number) => ({ "--fx-delay": `${ms}ms` }) as CSSProperties;
 
 export default function DuelPage() {
   const router = useRouter();
@@ -192,14 +197,14 @@ export default function DuelPage() {
         </header>
 
         {error && phase !== "done" && (
-          <div className="rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold">
+          <div key={error} className="fx-shake rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold">
             ⚠️ {error}
           </div>
         )}
 
         {phase === "menu" && (
           <>
-            <Card className="p-5 text-center">
+            <Card className="fx-rise p-5 text-center">
               <div className="text-4xl mb-2">🆕</div>
               <h2 className="font-extrabold text-lg mb-1">Duel yaratish</h2>
               <p className="text-sm text-[#64748B] mb-4">
@@ -210,7 +215,7 @@ export default function DuelPage() {
               </Button>
             </Card>
 
-            <Card className="p-5 text-center">
+            <Card className="fx-rise p-5 text-center" style={delay(80)}>
               <div className="text-4xl mb-2">🎯</div>
               <h2 className="font-extrabold text-lg mb-1">Kod bilan qo'shilish</h2>
               <p className="text-sm text-[#64748B] mb-3">Do'sting yuborgan kodni kirit:</p>
@@ -229,19 +234,24 @@ export default function DuelPage() {
         )}
 
         {(phase === "creating" || phase === "joining") && (
-          <Card className="p-8 text-center">
+          <Card className="fx-rise p-8 text-center">
             <div className="text-5xl animate-bounce mb-3">⚔️</div>
             <Spinner size={30} />
             <p className="font-bold text-[#4F46E5] mt-3">
               {phase === "creating" ? "AI savollar tuzyapti…" : "Duelga qo'shilyapmiz…"}
             </p>
+            <div className="flex items-center justify-center gap-1.5 mt-3" aria-hidden>
+              <span className="fx-dot" />
+              <span className="fx-dot" style={delay(150)} />
+              <span className="fx-dot" style={delay(300)} />
+            </div>
           </Card>
         )}
 
         {phase === "created" && (
-          <Card className="p-6 text-center">
+          <Card className="fx-rise p-6 text-center">
             <p className="font-bold text-[#64748B] text-sm mb-2">Duel kodi — do'stingga yubor:</p>
-            <div className="text-5xl font-extrabold tracking-[0.25em] text-[#4F46E5] bg-indigo-50 rounded-2xl py-5 mb-3 select-all">
+            <div className="fx-pop-in w-full text-5xl font-extrabold tracking-[0.25em] text-[#4F46E5] bg-indigo-50 rounded-2xl py-5 mb-3 select-all">
               {code}
             </div>
             <CopyButton text={code} label="Kodni nusxalash 📋" className="w-full mb-3" />
@@ -255,20 +265,22 @@ export default function DuelPage() {
         )}
 
         {phase === "play" && q && (
-          <Card className="p-5">
+          <Card key={qIndex} className="fx-slide p-5">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-extrabold text-[#64748B]">
                 Savol {qIndex + 1} / {questions.length}
               </span>
               <span
-                className={`text-lg font-extrabold tabular-nums ${remaining <= 5 ? "text-[#DC2626]" : "text-[#0F172A]"}`}
+                className={`text-lg font-extrabold tabular-nums ${
+                  remaining <= 5 ? "fx-urgent inline-block text-[#DC2626]" : "text-[#0F172A]"
+                }`}
               >
                 ⏱ {Math.ceil(remaining)}s
               </span>
             </div>
-            <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden mb-4">
+            <div className={`h-2.5 bg-slate-100 rounded-full overflow-hidden mb-4 ${remaining <= 5 ? "fx-urgent" : ""}`}>
               <div
-                className={`h-full rounded-full transition-[width] duration-100 ease-linear ${barColor}`}
+                className={`h-full rounded-full transition-[width,background-color] duration-100 ease-linear ${barColor}`}
                 style={{ width: `${pct}%` }}
               />
             </div>
@@ -279,9 +291,10 @@ export default function DuelPage() {
                   key={oi}
                   onClick={() => pick(oi)}
                   disabled={picked !== null}
-                  className={`min-h-12 px-4 py-2.5 rounded-2xl border-2 text-left text-[15px] transition-colors ${
+                  style={delay(60 + oi * 45)}
+                  className={`fx-rise fx-opt min-h-12 px-4 py-2.5 rounded-2xl border-2 text-left text-[15px] ${
                     picked === oi
-                      ? "border-[#4F46E5] bg-[#4F46E5] text-white font-bold"
+                      ? "fx-pop border-[#4F46E5] bg-[#4F46E5] text-white font-bold"
                       : "border-slate-200 bg-white hover:border-[#4F46E5]/50"
                   }`}
                 >
@@ -294,35 +307,54 @@ export default function DuelPage() {
         )}
 
         {phase === "finishing" && (
-          <Card className="p-8 text-center">
+          <Card className="fx-rise p-8 text-center">
             <Spinner size={30} />
             <p className="font-bold text-[#4F46E5] mt-3">Natija hisoblanyapti…</p>
           </Card>
         )}
 
         {phase === "done" && (
-          <Card className="p-6 text-center">
+          <Card className="fx-rise p-6 text-center">
+            {winnerId !== null && winnerId === myId && (
+              <>
+                <Confetti coins count={16} />
+                <Confetti count={22} />
+              </>
+            )}
             <div className="text-6xl mb-3">
-              {winnerId !== null && winnerId === myId ? "🏆" : winnerId === null ? "⏳" : "😅"}
+              <span className="fx-pop-in">
+                {winnerId !== null && winnerId === myId ? "🏆" : winnerId === null ? "⏳" : "😅"}
+              </span>
             </div>
-            <h2 className="text-2xl font-extrabold mb-1">
+            <h2 className="fx-fade-up text-2xl font-extrabold mb-1" style={delay(150)}>
               {winnerId !== null && winnerId === myId
-                ? "Yutding!"
+                ? "G'alaba! Zo'rsan! 🎉"
                 : winnerId === null
                   ? "Natijang qabul qilindi!"
                   : "Bu safar yutqazding"}
             </h2>
+            {winnerId !== null && winnerId !== myId && (
+              <p className="fx-fade-up text-sm font-bold text-[#4F46E5] mb-1" style={delay(200)}>
+                Keyingi duel seniki — yana bir bor sina! 💪
+              </p>
+            )}
             <p className="text-[#64748B] font-semibold mb-3">
               Balling: {score} / {total}
               {winnerId === null && " · Raqib tugatgach g'olib aniqlanadi (teng bo'lsa — durang)"}
             </p>
             <div className="flex items-center justify-center gap-2 font-extrabold text-lg mb-1">
-              <Coin size={22} /> +5 o'yin uchun
-              {winnerId !== null && winnerId === myId && <span className="text-[#16A34A]">+25 g'alaba!</span>}
+              <span className="fx-coin-drop"><Coin size={22} /></span> +5 o'yin uchun
+              {winnerId !== null && winnerId === myId && (
+                <span className="fx-pop-in text-[#16A34A]">+25 g'alaba!</span>
+              )}
             </div>
-            {balance !== null && <p className="text-sm text-[#94A3B8] mb-4">Jami: {balance} tanga</p>}
+            {balance !== null && (
+              <p className="text-sm text-[#94A3B8] mb-4">
+                Jami: <CountUp value={balance} duration={1100} /> tanga
+              </p>
+            )}
             {error && (
-              <div className="rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold mb-3">
+              <div key={error} className="fx-shake rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold mb-3">
                 ⚠️ {error}
               </div>
             )}

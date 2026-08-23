@@ -1,11 +1,13 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Spinner from "@/components/ui/Spinner";
+import Mascot from "@/components/app/Mascot";
+import "@/components/app/fx.css";
 
 type Tab = "login" | "register";
 type Role = "student" | "teacher";
@@ -34,9 +36,12 @@ function KirishInner() {
   const [className, setClassName] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   function goByRole(r: Role) {
-    router.push(r === "teacher" ? "/ustoz" : "/panel");
+    // Maskot salomlashsin — keyin o'tamiz (bir martalik hodisa, 700ms)
+    setSuccess(true);
+    setTimeout(() => router.push(r === "teacher" ? "/ustoz" : "/panel"), 700);
   }
 
   async function onLogin() {
@@ -119,19 +124,21 @@ function KirishInner() {
   return (
     <main className="min-h-dvh bg-[#F8FAFC] text-[#0F172A] px-4 py-8">
       <div className="max-w-md mx-auto">
-        <div className="text-center mb-6">
-          <div className="text-5xl mb-2">🎓</div>
+        <div className="fx-rise text-center mb-6">
+          <Mascot mood={success ? "happy" : busy ? "thinking" : "hello"} size={92} />
           <h1 className="text-3xl font-extrabold text-[#4F46E5]">Sinf AI</h1>
-          <p className="text-[#64748B] mt-1">O'qi, yech, tanga yig' — sinfda birinchi bo'l!</p>
+          <p className="text-[#64748B] mt-1">
+            {success ? "Xush kelibsan! 🎉" : "O'qi, yech, tanga yig' — sinfda birinchi bo'l!"}
+          </p>
         </div>
 
         {invite && (
-          <div className="mb-4 rounded-2xl bg-[#FACC15]/20 border-2 border-[#FACC15] px-4 py-3 text-sm font-semibold">
+          <div className="fx-rise mb-4 rounded-2xl bg-[#FACC15]/20 border-2 border-[#FACC15] px-4 py-3 text-sm font-semibold" style={{ "--fx-delay": "60ms" } as CSSProperties}>
             🎉 Do'sting seni taklif qildi! Ro'yxatdan o'tsang — senga <b>+20</b>, unga <b>+30</b> tanga.
           </div>
         )}
 
-        <Card className="p-5">
+        <Card className="fx-rise p-5" style={{ "--fx-delay": "120ms" } as CSSProperties}>
           <div className="flex gap-1 bg-slate-100 rounded-2xl p-1 mb-5">
             {tabBtn("login", "Kirish")}
             {tabBtn("register", "Ro'yxatdan o'tish")}
@@ -148,9 +155,9 @@ function KirishInner() {
                 <button
                   key={r}
                   onClick={() => setRole(r)}
-                  className={`flex-1 min-h-12 rounded-2xl font-bold text-sm border-2 transition-colors ${
+                  className={`fx-opt flex-1 min-h-12 rounded-2xl font-bold text-sm border-2 ${
                     role === r
-                      ? "border-[#4F46E5] bg-indigo-50 text-[#4F46E5]"
+                      ? "border-[#4F46E5] bg-indigo-50 text-[#4F46E5] -translate-y-1 shadow-[0_6px_16px_rgba(79,70,229,0.25)]"
                       : "border-slate-200 text-[#64748B] hover:border-slate-300"
                   }`}
                 >
@@ -216,7 +223,7 @@ function KirishInner() {
             )}
 
             {error && (
-              <div className="rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold">
+              <div key={error} className="fx-shake rounded-2xl bg-red-50 border-2 border-[#DC2626]/30 text-[#DC2626] px-4 py-3 text-sm font-semibold">
                 ⚠️ {error}
               </div>
             )}
@@ -227,7 +234,7 @@ function KirishInner() {
               onClick={tab === "login" ? onLogin : onRegister}
               className="mt-1 flex items-center justify-center gap-2"
             >
-              {busy ? <Spinner size={22} /> : tab === "login" ? "Kirish 🚀" : "Boshlash 🎉"}
+              {success ? "Tayyor! 🎉" : busy ? <Spinner size={22} /> : tab === "login" ? "Kirish 🚀" : "Boshlash 🎉"}
             </Button>
           </div>
         </Card>
