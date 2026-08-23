@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth/session";
 import { q, one } from "@/lib/db/pool";
-import { ask } from "@/lib/ai/claude";
+import { AiDisabledError, ask } from "@/lib/ai/claude";
 import { rateLimit } from "@/lib/security/ratelimit";
 import { track } from "@/lib/db/queries/events";
 import { leakedCanary, sanitizeAiOutput, withCanary, wrapUntrusted } from "@/lib/ai/guard";
@@ -52,7 +52,14 @@ export async function POST(req: Request) {
 
   const prompt = `Sinf: ${cls.name}. Bugungi mavzu: ${topic?.title ?? "belgilanmagan"}.\nBugungi sana: ${new Date().toISOString().slice(0, 10)}.\n\nO'QUVCHILAR:\n${table}\n\nO'QITUVCHI SAVOLI (ishonchsiz matn):\n${wrapUntrusted(String(body?.question ?? "Sinf holati qanday? Kim orqada qolyapti, kim test ishlamayapti?"))}`;
 
-  const res = await ask(withCanary(SYSTEM), prompt, 700);
+  let res;
+  try {
+    res = await ask(withCanary(SYSTEM), prompt, 700);
+  } catch (e) {
+    if (e instanceof AiDisabledError)
+      return NextResponse.json({ ok: false, error: "AI hozir o'chirilgan (kalit olib tashlandi). Kalit qaytarilsa darrov ishlaydi." }, { status: 503 });
+    return NextResponse.json({ ok: false, error: "Hisobot tuzilmadi, qayta urining" }, { status: 502 });
+  }
   if (leakedCanary(res.text)) {
     await track(user.id, "canary_leak", { route: "teacher_ai" });
     return NextResponse.json({ ok: false, error: "Hisobot tuzilmadi, qayta urining" }, { status: 400 });

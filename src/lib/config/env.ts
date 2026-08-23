@@ -7,6 +7,8 @@ function need(name: string): string {
 export const env = {
   databaseUrl: () => need("DATABASE_URL"),
   anthropicKey: () => need("ANTHROPIC_API_KEY"),
+  /** Kalit qo'yilmagan bo'lsa AI o'chiq — sahifa yiqilmasin, tushunarli xabar chiqsin. */
+  aiEnabled: () => Boolean(process.env.ANTHROPIC_API_KEY),
   sessionSecret: () => need("SESSION_SECRET"),
   model: process.env.AI_MODEL ?? "claude-sonnet-5",
   appName: "Blimo",

@@ -9,7 +9,16 @@ function ai(): Anthropic {
 
 export type AiText = { text: string; model: string; inTokens: number; outTokens: number };
 
+/** AI o'chiq bo'lsa shu xato uchadi — routelar uni 503 ga aylantiradi. */
+export class AiDisabledError extends Error {
+  constructor() {
+    super("AI o'chirilgan");
+    this.name = "AiDisabledError";
+  }
+}
+
 export async function ask(system: string, user: string, maxTokens = 900, model?: string): Promise<AiText> {
+  if (!env.aiEnabled()) throw new AiDisabledError();
   const res = await ai().messages.create({
     model: model ?? env.model,
     max_tokens: maxTokens,

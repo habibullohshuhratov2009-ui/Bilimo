@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth/session";
-import { ask, parseQuiz } from "@/lib/ai/claude";
+import { AiDisabledError, ask, parseQuiz } from "@/lib/ai/claude";
 import { EXPLAIN_SYSTEM, QUIZ_SYSTEM } from "@/lib/ai/prompts";
 import { one } from "@/lib/db/pool";
 import { track } from "@/lib/db/queries/events";
@@ -49,8 +49,11 @@ export async function POST(req: Request) {
     ask(withCanary(EXPLAIN_SYSTEM), wrapUntrusted(question), 520),
     ask(withCanary(QUIZ_SYSTEM), wrapUntrusted(question), 700, QUIZ_MODEL),
   ]);
-  if (explain.status === "rejected")
+  if (explain.status === "rejected") {
+    if (explain.reason instanceof AiDisabledError)
+      return NextResponse.json({ ok: false, error: "AI hozir o'chirilgan (kalit olib tashlandi). Kalit qaytarilsa darrov ishlaydi." }, { status: 503 });
     return NextResponse.json({ ok: false, error: "AI hozir javob bera olmadi, qayta urining" }, { status: 502 });
+  }
   const ex = explain.value;
   // 4-qatlam: system oshkor bo'lganini tekshirish. Chiqib ketgan bo'lsa — javobni BERMAYMIZ.
   if (leakedCanary(ex.text)) {
