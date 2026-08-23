@@ -18,7 +18,8 @@ export async function POST(req: Request) {
   // Faqat O'ZI yaratgan (solve) testini topshira oladi — begona yoki duel testi emas.
   const quiz = await one<{ questions: any; created_by: number; source: string }>(
     `SELECT questions, created_by, source FROM quizzes WHERE id = $1`, [quizId]);
-  if (!quiz || quiz.source !== "solve" || Number(quiz.created_by) !== user.id)
+  // Diqqat: pg bigint'ni SATR qaytaradi — ikkala tomonni ham Number ga keltiramiz.
+  if (!quiz || quiz.source !== "solve" || Number(quiz.created_by) !== Number(user.id))
     return NextResponse.json({ ok: false, error: "Test topilmadi" }, { status: 404 });
 
   const list = quiz.questions?.questions ?? [];

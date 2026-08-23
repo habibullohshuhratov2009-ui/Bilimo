@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   const duel = await one<{ id: number; quiz_id: number; player_a: number; status: string }>(
     `SELECT id, quiz_id, player_a, status FROM duels WHERE code = $1`, [String(code ?? "").toUpperCase()]);
   if (!duel) return NextResponse.json({ ok: false, error: "Bunday duel yo'q" }, { status: 404 });
-  if (duel.player_a !== user.id && duel.status === "waiting") {
+  if (Number(duel.player_a) !== Number(user.id) && duel.status === "waiting") {
     // ATOMIK: ikki o'quvchi bir vaqtda kirsa, faqat BIRINCHISI ikkinchi o'yinchi bo'ladi.
     const taken = await one<{ id: number }>(
       `UPDATE duels SET player_b = $1, status = 'playing'

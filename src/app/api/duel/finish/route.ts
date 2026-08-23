@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   if (!duel) return NextResponse.json({ ok: false, error: "Duel topilmadi" }, { status: 404 });
 
   // Faqat duel ishtirokchisi yakunlay oladi.
-  if (duel.player_a !== user.id && duel.player_b !== user.id)
+  if (Number(duel.player_a) !== Number(user.id) && Number(duel.player_b) !== Number(user.id))
     return NextResponse.json({ ok: false, error: "Bu duel sizniki emas" }, { status: 403 });
 
   // BALL SERVERDA hisoblanadi — mijoz yuborgan raqamga ishonilmaydi.
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     (acc: number, qq: any, i: number) => acc + (Number(answers?.[i]) === Number(qq.correct) ? 1 : 0), 0);
 
   // ATOMIK: ikki marta bosilsa ham ball bir marta yoziladi (poyga holati yopildi).
-  const isA = duel.player_a === user.id;
+  const isA = Number(duel.player_a) === Number(user.id);
   const col = isA ? "score_a" : "score_b";
   const upd = await one<{ id: number }>(
     `UPDATE duels SET ${col} = $1 WHERE id = $2 AND ${col} IS NULL RETURNING id`, [score, duel.id]);
