@@ -6,11 +6,11 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sinf-ai.uz";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Sinf AI — maktab o'quvchilari uchun AI repetitor",
-    template: "%s | Sinf AI",
+    default: "Bilimo — maktab o'quvchilari uchun AI repetitor",
+    template: "%s | Bilimo",
   },
   description:
-    "Sinf AI — o'zbek tilida qadam-baqadam tushuntiradigan AI repetitor. Savol yoz, tushunib ol, mini-testda tanga yut va sinfdoshing bilan duel o'yna. O'qituvchi uchun sinf kodi va progress paneli.",
+    "Bilimo — o'zbek tilida qadam-baqadam tushuntiradigan AI repetitor. Savol yoz, tushunib ol, mini-testda tanga yut va sinfdoshing bilan duel o'yna. O'qituvchi uchun sinf kodi va progress paneli.",
   keywords: [
     "AI repetitor",
     "o'zbek tilida AI",
@@ -21,14 +21,14 @@ export const metadata: Metadata = {
     "tanga o'yini",
     "duel",
     "o'qituvchi paneli",
-    "Sinf AI",
+    "Bilimo",
   ],
-  applicationName: "Sinf AI",
+  applicationName: "Bilimo",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Sinf AI",
+    title: "Bilimo",
   },
   icons: {
     icon: [
@@ -41,14 +41,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "uz_UZ",
     url: SITE_URL,
-    siteName: "Sinf AI",
-    title: "Sinf AI — maktab o'quvchilari uchun AI repetitor",
+    siteName: "Bilimo",
+    title: "Bilimo — maktab o'quvchilari uchun AI repetitor",
     description:
       "O'zbek tilida qadam-baqadam tushuntiradigan AI ustoz: savol → tushuntirish → mini-test → tanga. Sinfdoshing bilan 1x1 duel!",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sinf AI — maktab o'quvchilari uchun AI repetitor",
+    title: "Bilimo — maktab o'quvchilari uchun AI repetitor",
     description:
       "O'zbek tilida AI ustoz: savol → tushuntirish → mini-test → tanga. Duel rejimi bilan!",
   },

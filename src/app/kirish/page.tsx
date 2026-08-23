@@ -126,7 +126,7 @@ function KirishInner() {
       <div className="max-w-md mx-auto">
         <div className="fx-rise text-center mb-6">
           <Mascot mood={success ? "happy" : busy ? "thinking" : "hello"} size={92} />
-          <h1 className="text-3xl font-extrabold text-[#4F46E5]">Sinf AI</h1>
+          <h1 className="text-3xl font-extrabold text-[#4F46E5]">Bilimo</h1>
           <p className="text-[#64748B] mt-1">
             {success ? "Xush kelibsan! 🎉" : "O'qi, yech, tanga yig' — sinfda birinchi bo'l!"}
           </p>

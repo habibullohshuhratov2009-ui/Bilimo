@@ -1,4 +1,4 @@
-# Sinf AI — xavfsizlik (bolalar ilovasi uchun)
+# Bilimo — xavfsizlik (bolalar ilovasi uchun)
 
 Bu maktab bolalari uchun mahsulot, shuning uchun eng kam ma'lumot prinsipi.
 

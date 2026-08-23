@@ -1,4 +1,4 @@
-/* Sinf AI — oddiy cache-first service worker (static fayllar uchun) */
+/* Bilimo — oddiy cache-first service worker (static fayllar uchun) */
 const CACHE = "sinf-ai-v1";
 const CORE = [
   "/",

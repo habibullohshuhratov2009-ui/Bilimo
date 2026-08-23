@@ -34,9 +34,10 @@ export async function POST(req: Request) {
     `INSERT INTO quizzes (source, questions, created_by) VALUES ('duel',$1,$2) RETURNING id`,
     [JSON.stringify({ questions }), user.id]);
 
+  if (!quiz) return NextResponse.json({ ok: false, error: "Test saqlanmadi" }, { status: 500 });
   const duel = await one<{ id: number; code: string }>(
     `INSERT INTO duels (code, class_id, quiz_id, player_a) VALUES ($1,$2,$3,$4) RETURNING id, code`,
-    [code(), user.class_id, quiz!.id, user.id]);
+    [code(), user.class_id, quiz.id, user.id]);
 
   await track(user.id, "duel_create", { duelId: duel?.id, theme });
   return NextResponse.json({ ok: true, code: duel?.code, quizId: quiz?.id, questions: publicQuestions(questions) });

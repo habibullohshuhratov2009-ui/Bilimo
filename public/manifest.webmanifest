@@ -1,6 +1,6 @@
 {
-  "name": "Sinf AI — AI repetitor",
-  "short_name": "Sinf AI",
+  "name": "Bilimo — AI repetitor",
+  "short_name": "Bilimo",
   "description": "O'zbek tilida qadam-baqadam tushuntiradigan AI repetitor: savol, tushuntirish, mini-test, tanga va duel.",
   "id": "/",
   "start_url": "/panel",

@@ -1,4 +1,4 @@
--- Sinf AI — Postgres sxemasi (hakaton final, 23.08.2026)
+-- Bilimo — Postgres sxemasi (hakaton final, 23.08.2026)
 -- Prinsip: pul/ball hech qachon UPDATE bilan emas — coin_ledger append-only, balans = SUM.
 
 CREATE TABLE IF NOT EXISTS schools (
@@ -80,6 +80,8 @@ CREATE TABLE IF NOT EXISTS attempts (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS attempts_user_idx ON attempts(user_id, created_at DESC);
+-- Bitta testni bir o'quvchi FAQAT bir marta topshiradi (tanga fermasi bo'lmasin).
+CREATE UNIQUE INDEX IF NOT EXISTS attempts_user_quiz_uniq ON attempts(user_id, quiz_id) WHERE quiz_id IS NOT NULL;
 
 -- Duel: 2 o'quvchi bir xil savollarga javob beradi
 CREATE TABLE IF NOT EXISTS duels (

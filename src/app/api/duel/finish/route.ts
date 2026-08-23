@@ -23,20 +23,24 @@ export async function POST(req: Request) {
   const score = list.reduce(
     (acc: number, qq: any, i: number) => acc + (Number(answers?.[i]) === Number(qq.correct) ? 1 : 0), 0);
 
+  // ATOMIK: ikki marta bosilsa ham ball bir marta yoziladi (poyga holati yopildi).
   const isA = duel.player_a === user.id;
-  const already = isA ? duel.score_a : duel.score_b;
-  if (already !== null && already !== undefined)
+  const col = isA ? "score_a" : "score_b";
+  const upd = await one<{ id: number }>(
+    `UPDATE duels SET ${col} = $1 WHERE id = $2 AND ${col} IS NULL RETURNING id`, [score, duel.id]);
+  if (!upd)
     return NextResponse.json({ ok: false, error: "Siz bu duelni allaqachon yakunlagansiz" }, { status: 409 });
-
-  await q(`UPDATE duels SET ${isA ? "score_a" : "score_b"} = $1 WHERE id = $2`, [score, duel.id]);
   await addCoins(user.id, PLAY, "duel_play", duel.id);
 
   const fresh = await one<any>(`SELECT * FROM duels WHERE id = $1`, [duel.id]);
   let winner: number | null = null;
-  if (fresh?.score_a !== null && fresh?.score_b !== null) {
+  if (fresh && fresh.score_a !== null && fresh.score_b !== null) {
     winner = fresh.score_a === fresh.score_b ? null : (fresh.score_a > fresh.score_b ? fresh.player_a : fresh.player_b);
-    await q(`UPDATE duels SET status = 'done', winner_id = $1, finished_at = now() WHERE id = $2`, [winner, duel.id]);
-    if (winner) await addCoins(winner, WIN, "duel_win", duel.id);
+    // G'alaba tangasi ham FAQAT bir marta: status hali 'done' bo'lmagan bo'lsa.
+    const done = await one<{ id: number }>(
+      `UPDATE duels SET status = 'done', winner_id = $1, finished_at = now()
+       WHERE id = $2 AND status <> 'done' RETURNING id`, [winner, duel.id]);
+    if (done && winner) await addCoins(winner, WIN, "duel_win", duel.id);
   }
   await track(user.id, "duel_finish", { duelId: duel.id, score });
   const review = list.map((qq: any) => ({ correct: Number(qq.correct), why: String(qq.why ?? "") }));

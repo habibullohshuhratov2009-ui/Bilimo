@@ -2,7 +2,7 @@ type Mood = "hello" | "happy" | "thinking";
 
 type Props = { mood?: Mood; size?: number };
 
-/** Sinf AI maskoti — do'stona robot. Qo'l silkitadi, ko'z pirpiratadi. */
+/** Bilimo maskoti — do'stona robot. Qo'l silkitadi, ko'z pirpiratadi. */
 export default function Mascot({ mood = "hello", size = 96 }: Props) {
   return (
     <span

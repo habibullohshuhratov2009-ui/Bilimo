@@ -1,4 +1,4 @@
-# Sinf AI — API shartnomasi (UI shunga tayanadi)
+# Bilimo — API shartnomasi (UI shunga tayanadi)
 
 Barcha javoblar JSON. Xato: `{ok:false, error:"..."}` + HTTP kod.
 

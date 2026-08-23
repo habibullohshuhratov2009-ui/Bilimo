@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Yordam",
   description:
-    "Sinf AI bo'yicha ko'p so'raladigan savollar: ro'yxatdan o'tish, sinf kodi, tangalar, duel va o'qituvchi paneli haqida javoblar.",
+    "Bilimo bo'yicha ko'p so'raladigan savollar: ro'yxatdan o'tish, sinf kodi, tangalar, duel va o'qituvchi paneli haqida javoblar.",
 };
 
 const FAQ = [
@@ -63,7 +63,7 @@ export default function YordamPage() {
           Ko&apos;p so&apos;raladigan savollar
         </h1>
         <p className="mt-2 text-muted">
-          Sinf AI dan foydalanish bo&apos;yicha eng muhim javoblar — qisqa va
+          Bilimo dan foydalanish bo&apos;yicha eng muhim javoblar — qisqa va
           aniq.
         </p>
 
@@ -112,7 +112,7 @@ export default function YordamPage() {
       </main>
 
       <footer className="border-t border-slate-200 bg-white py-6 text-center text-sm text-muted">
-        Sinf AI · AI bilan o&apos;qish o&apos;yinga aylanadi 🪙
+        Bilimo · AI bilan o&apos;qish o&apos;yinga aylanadi 🪙
       </footer>
     </div>
   );

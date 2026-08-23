@@ -18,7 +18,7 @@ export default function ChatDemo() {
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
             <Mascot mood="happy" size={34} animated={false} />
-            <span className="text-sm font-extrabold">Sinf AI</span>
+            <span className="text-sm font-extrabold">Bilimo</span>
           </div>
           <span className="flex items-center gap-1 rounded-full grad-coin px-2.5 py-1 text-xs font-extrabold text-coin-deep shadow-sm">
             <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" className="animate-coin-spin">
